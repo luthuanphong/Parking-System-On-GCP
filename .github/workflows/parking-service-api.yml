@@ -44,9 +44,7 @@ jobs:
     - name: install gcloud
       uses: 'google-github-actions/setup-gcloud@v3'
     - name: configure docker
-      run: gcloud auth configure-docker ${{secrets.GCP_REPO_URL}}
-    # - name: gcr login
-    #   run: cat cres.json | docker login -u _json_key_base64 --password-stdin https://${{secrets.GCP_REPO_URL}}
+      run: gcloud auth configure-docker ${{secrets.GCR_URL}}
     - name: tag image
       run: docker tag parking-service-api:${{github.run_id}} ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
     - name: push image
