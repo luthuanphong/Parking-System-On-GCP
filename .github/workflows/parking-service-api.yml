@@ -37,8 +37,8 @@ jobs:
     - name: Build docker image
       working-directory: ./BE
       run: docker build -t parking-service-api:${{github.run_id}} .
-    # - name: install gcloud
-    #   uses: 'google-github-actions/setup-gcloud@v3'
+    - name: install gcloud
+      uses: 'google-github-actions/setup-gcloud@v3'
     # - name: auth service account 2
     #   uses: 'google-github-actions/auth@v2'
     #   with:
@@ -48,8 +48,12 @@ jobs:
       run: 'echo "$CRED" >> cres.json' 
       env:
         CRED: ${{secrets.GCP_CREDENTIALS}}
-    - name: gcr login
-      run: cat cres.json | docker login -u _json_key_base64 --password-stdin https://${{secrets.GCP_REPO_URL}}
+    - name: gcloud authen
+      run: gcloud auth activate-service-account --key-file=cres.json
+    - name: configure docker
+      run: gcloud auth configure-docker
+    # - name: gcr login
+    #   run: cat cres.json | docker login -u _json_key_base64 --password-stdin https://${{secrets.GCP_REPO_URL}}
     - name: tag image
       run: docker tag parking-service-api:${{github.run_id}} ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
     - name: push image
