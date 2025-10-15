@@ -64,6 +64,7 @@ resource "google_sql_database_instance" "postgres" {
     disk_type = var.disk_type
     ip_configuration {
       ipv4_enabled = true
+      ssl_mode = "ENCRYPTED_ONLY"
       authorized_networks {
         name  = "all"
         value = "0.0.0.0/0"
@@ -150,7 +151,6 @@ resource "google_redis_instance" "cache" {
 }
 
 /*
-
 # GKE Cluster
 resource "google_container_cluster" "primary" {
   name     = "${var.project_name}-gke"
@@ -261,6 +261,12 @@ resource "google_project_iam_member" "sa_role_binding" {
   member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
 }
 
+resource "google_dns_managed_zone" "public" {
+  name        = "parking-system-public"
+  dns_name    = "parking-system-poc.com."
+  description = "Public DNS zone"
+}
+
 /*
 # Grant Cloud Run SA access to KMS
 resource "google_kms_crypto_key_iam_member" "crypto_key_user" {
@@ -276,3 +282,16 @@ resource "google_project_service" "kms_api" {
 }
 
 */
+
+resource "google_dns_managed_zone" "private_zone" {
+  name        = "parking-system-private-zone"
+  dns_name    = "parking-system.private.domain."
+  description = "Private zone for my VPC"
+  visibility  = "private"
+
+private_visibility_config {
+    networks {
+      network_url = google_compute_network.vpc.id
+    }
+  }
+}

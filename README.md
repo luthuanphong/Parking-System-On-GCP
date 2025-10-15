@@ -33,7 +33,7 @@ GCP Resource
     - Purpose: It's for key management the purpose is for encrypting 
 - MemoryStore:
     - Configuration:
-        
+        - Private network
 - Cloud SQL
     - Configurations:
         - Provider: Postgres
