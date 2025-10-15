@@ -50,4 +50,4 @@ jobs:
     - name: tag image
       run: docker tag parking-service-api:${{github.run_id}} ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
     - name: push image
-      run: docker push ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
+      run: gcloud docker push ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
