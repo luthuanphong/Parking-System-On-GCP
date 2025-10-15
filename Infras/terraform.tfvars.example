@@ -1,0 +1,15 @@
+project_id = "your-project-id"
+project_name = "parking-system"
+region = "us-central1"
+zone = "us-central1-c"
+subnet_cidr = "10.0.0.0/24"
+secondary_ip_range = "10.1.0.0/24"
+db_tier = "db-f1-micro"
+db_name = "parking_system"
+gke_machine_type = "e2-medium"
+
+# Redis Memorystore Configuration
+redis_tier = "BASIC"
+redis_memory_size = 1
+redis_version = "REDIS_6_X"
+environment = "poc"
