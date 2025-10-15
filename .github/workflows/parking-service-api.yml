@@ -46,6 +46,6 @@ jobs:
     - name: configure docker
       run: gcloud auth configure-docker ${{secrets.GCR_URL}}
     - name: tag image
-      run: docker tag parking-service-api:${{github.run_id}} ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
+      run: docker tag parking-service-api:${{github.run_id}} ${{secrets.GCP_REPO_URL}}/parking-service:${{github.run_id}}
     - name: push image
-      run: docker push ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
+      run: docker push ${{secrets.GCP_REPO_URL}}/parking-service:${{github.run_id}}
