@@ -43,3 +43,7 @@ jobs:
       uses: 'google-github-actions/auth@v2'
       with:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+    - name: tag image
+      run: docker tag parking-service-api:${{github.run_id}} ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
+    - name: push image
+      run: docker push ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
