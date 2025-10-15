@@ -39,6 +39,16 @@ variable "db_tier" {
   default     = "db-f1-micro"
 }
 
+variable "disk_type" {
+  description = "The machine type for Cloud SQL"
+  type        = string
+}
+
+variable "disk_size" {
+  description = "The machine type for Cloud SQL"
+  type        = string
+}
+
 variable "db_name" {
   description = "The name of the database"
   type        = string
