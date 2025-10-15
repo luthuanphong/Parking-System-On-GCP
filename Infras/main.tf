@@ -44,10 +44,9 @@ resource "google_sql_database_instance" "postgres" {
 
   settings {
     tier = var.db_tier
-    
+
     ip_configuration {
       ipv4_enabled = true
-      require_ssl  = true
       authorized_networks {
         name  = "all"
         value = "0.0.0.0/0"
@@ -55,13 +54,13 @@ resource "google_sql_database_instance" "postgres" {
     }
 
     backup_configuration {
-      enabled                        = true
+      enabled = true
       backup_retention_settings {
         retained_backups = 7
         retention_unit   = "COUNT"
       }
       point_in_time_recovery_enabled = true
-      start_time                     = "02:00"  # 2 AM UTC
+      start_time                     = "02:00" # 2 AM UTC
     }
 
     database_flags {
@@ -71,19 +70,19 @@ resource "google_sql_database_instance" "postgres" {
 
     database_flags {
       name  = "postgresql.auto_explain.log_min_duration"
-      value = "300000"  # Log queries that take more than 300ms
+      value = "300000" # Log queries that take more than 300ms
     }
 
     insights_config {
       query_insights_enabled  = true
-      query_string_length    = 1024
+      query_string_length     = 1024
       record_application_tags = true
-      record_client_address  = true
+      record_client_address   = true
     }
 
     maintenance_window {
-      day          = 7  # Sunday
-      hour         = 2  # 2 AM
+      day          = 7 # Sunday
+      hour         = 2 # 2 AM
       update_track = "stable"
     }
   }
@@ -106,30 +105,30 @@ resource "google_sql_user" "postgres_user" {
 
 # Memorystore Redis Instance
 resource "google_redis_instance" "cache" {
-  name                    = "${var.project_name}-redis"
-  display_name           = "Parking System Cache"
-  tier                   = var.redis_tier
-  memory_size_gb         = var.redis_memory_size
-  region                 = var.region
-  redis_version          = var.redis_version
-  
-  authorized_network     = google_compute_network.vpc.id
-  connect_mode           = "DIRECT_PEERING"
+  name           = "${var.project_name}-redis"
+  display_name   = "Parking System Cache"
+  tier           = var.redis_tier
+  memory_size_gb = var.redis_memory_size
+  region         = var.region
+  redis_version  = var.redis_version
+
+  authorized_network = google_compute_network.vpc.id
+  connect_mode       = "DIRECT_PEERING"
 
   redis_configs = {
-    maxmemory-policy = "allkeys-lru"  # Eviction policy for when memory is full
-    notify-keyspace-events = "Ex"     # Enable keyspace notifications for expired keys
-    timeout = "1800"                  # Connection timeout in seconds
+    maxmemory-policy       = "allkeys-lru" # Eviction policy for when memory is full
+    notify-keyspace-events = "Ex"          # Enable keyspace notifications for expired keys
+    timeout                = "1800"        # Connection timeout in seconds
   }
 
   maintenance_policy {
     weekly_maintenance_window {
       day = "SUNDAY"
       start_time {
-        hours = 2    # 2 AM
+        hours   = 2 # 2 AM
         minutes = 0
         seconds = 0
-        nanos = 0
+        nanos   = 0
       }
     }
   }
@@ -159,4 +158,100 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
+}
+
+/*
+# Service Account for Cloud Run
+resource "google_service_account" "cloud_run_sa" {
+  account_id   = "${var.project_name}-run-sa"
+  display_name = "Service Account for Cloud Run"
+}
+
+# Cloud Run service
+resource "google_cloud_run_service" "parking_service" {
+  name     = "${var.project_name}-service"
+  location = var.region
+
+  template {
+    spec {
+      service_account_name = google_service_account.cloud_run_sa.email
+      containers {
+        image = var.container_image
+        resources {
+          limits = {
+            cpu    = "1000m"
+            memory = "512Mi"
+          }
+        }
+        env {
+          name  = "SPRING_PROFILES_ACTIVE"
+          value = var.environment
+        }
+        env {
+          name  = "DB_HOST"
+          value = google_sql_database_instance.postgres.connection_name
+        }
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+
+  depends_on = [google_project_service.run_api]
+}
+
+# Allow unauthenticated access to Cloud Run service
+resource "google_cloud_run_service_iam_member" "public_access" {
+  service  = google_cloud_run_service.parking_service.name
+  location = google_cloud_run_service.parking_service.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+# Enable Cloud Run API
+resource "google_project_service" "run_api" {
+  service = "run.googleapis.com"
+  disable_on_destroy = false
+}
+*/
+
+# Cloud KMS KeyRing
+resource "google_kms_key_ring" "parking_keyring" {
+  name     = "${var.project_name}-keyring"
+  location = var.region
+}
+
+# Cloud KMS Encryption Key
+resource "google_kms_crypto_key" "parking_key" {
+  name     = "${var.project_name}-key"
+  key_ring = google_kms_key_ring.parking_keyring.id
+  purpose  = "ENCRYPT_DECRYPT"
+
+  version_template {
+    algorithm = "GOOGLE_SYMMETRIC_ENCRYPTION"
+  }
+
+  rotation_period = "7776000s" # 90 days
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+/*
+# Grant Cloud Run SA access to KMS
+resource "google_kms_crypto_key_iam_member" "crypto_key_user" {
+  crypto_key_id = google_kms_crypto_key.parking_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+}
+*/
+
+# Enable Cloud KMS API
+resource "google_project_service" "kms_api" {
+  service            = "cloudkms.googleapis.com"
+  disable_on_destroy = false
 }

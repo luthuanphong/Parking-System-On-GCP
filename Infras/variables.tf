@@ -72,7 +72,7 @@ variable "gke_machine_type" {
 variable "redis_tier" {
   description = "The service tier of the instance"
   type        = string
-  default     = "BASIC"  # Options: BASIC, STANDARD_HA
+  default     = "BASIC" # Options: BASIC, STANDARD_HA
 }
 
 variable "redis_memory_size" {
