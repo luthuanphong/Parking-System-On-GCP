@@ -49,7 +49,7 @@ jobs:
       env:
         CRED: ${{secrets.GCP_CREDENTIALS}}
     - name: gcloud authen
-      run: gcloud auth activate-service-account --key-file=cres.json
+      run: gcloud auth activate-service-account --key-file=./cres.json
     - name: configure docker
       run: gcloud auth configure-docker
     # - name: gcr login
