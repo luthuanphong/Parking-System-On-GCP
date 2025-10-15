@@ -43,8 +43,10 @@ jobs:
     #   uses: 'google-github-actions/auth@v2'
     #   with:
     #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+    - name: write secret
+      run: echo ${{ secrets.GCP_CREDENTIALS }} >> cres.json 
     - name: gcr login
-      run: echo ${{ secrets.GCP_CREDENTIALS }} | docker login -u _json_key_base64 --password-stdin https://${{secrets.GCP_REPO_URL}}
+      run: cat cres.json | docker login -u _json_key_base64 --password-stdin https://${{secrets.GCP_REPO_URL}}
     - name: tag image
       run: docker tag parking-service-api:${{github.run_id}} ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
     - name: push image
