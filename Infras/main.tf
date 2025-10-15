@@ -218,6 +218,71 @@ resource "google_project_service" "run_api" {
 }
 */
 
+# Enable Secret Manager API
+resource "google_project_service" "secretmanager" {
+  service            = "secretmanager.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Create secrets for database credentials
+resource "google_secret_manager_secret" "db_user" {
+  secret_id = "${var.project_name}-db-user"
+
+  replication {
+    auto {
+      customer_managed_encryption {
+        kms_key_name = google_kms_crypto_key.parking_key.id
+      }
+    }
+  }
+
+  depends_on = [google_project_service.secretmanager]
+}
+
+resource "google_secret_manager_secret" "db_password" {
+  secret_id = "${var.project_name}-db-password"
+
+  replication {
+    auto {
+      customer_managed_encryption {
+        kms_key_name = google_kms_crypto_key.parking_key.id
+      }
+    }
+  }
+
+  depends_on = [google_project_service.secretmanager]
+}
+
+# Store the secret values
+resource "google_secret_manager_secret_version" "db_user_value" {
+  secret      = google_secret_manager_secret.db_user.id
+  secret_data = var.db_user
+}
+
+resource "google_secret_manager_secret_version" "db_password_value" {
+  secret      = google_secret_manager_secret.db_password.id
+  secret_data = var.db_password
+}
+
+# Create a custom service account for accessing secrets
+resource "google_service_account" "secret_accessor" {
+  account_id   = "${var.project_name}-secret-accessor"
+  display_name = "Service Account for accessing secrets"
+}
+
+# Grant the service account access to read secrets
+resource "google_secret_manager_secret_iam_member" "secret_accessor_db_user" {
+  secret_id = google_secret_manager_secret.db_user.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.secret_accessor.email}"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_accessor_db_password" {
+  secret_id = google_secret_manager_secret.db_password.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.secret_accessor.email}"
+}
+
 # Cloud KMS KeyRing
 resource "google_kms_key_ring" "parking_keyring" {
   name     = "${var.project_name}-keyring"

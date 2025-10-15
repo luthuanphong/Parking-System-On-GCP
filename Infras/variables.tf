@@ -55,12 +55,25 @@ variable "db_user" {
   description = "PostgreSQL user name"
   type        = string
   default     = "postgres"
+  sensitive   = true
 }
 
 variable "db_password" {
   description = "PostgreSQL user password"
   type        = string
   sensitive   = true
+}
+
+variable "kms_keyring_name" {
+  description = "Name of the Cloud KMS KeyRing"
+  type        = string
+  default     = "parking-keyring"
+}
+
+variable "kms_key_name" {
+  description = "Name of the Cloud KMS Key"
+  type        = string
+  default     = "parking-key"
 }
 
 variable "gke_machine_type" {
