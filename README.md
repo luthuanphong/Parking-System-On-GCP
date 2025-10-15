@@ -31,6 +31,7 @@ GCP Resource
     - Usage: Apply into terraform for provisioning some resource such as Cloud SQL & Cloud Run
 - KMS
     - Purpose: It's for key management the purpose is for encrypting 
+- GCR
 - MemoryStore:
     - Configuration:
         - Private network
@@ -47,3 +48,4 @@ GCP Resource
         - disk_size: 10 (default 10GB)
 - Pub/Sub
 - Cloud Run
+
