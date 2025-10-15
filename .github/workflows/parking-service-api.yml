@@ -37,12 +37,14 @@ jobs:
     - name: Build docker image
       working-directory: ./BE
       run: docker build -t parking-service-api:${{github.run_id}} .
-    - name: install gcloud
-      uses: 'google-github-actions/setup-gcloud@v3'
-    - name: auth service account 2
-      uses: 'google-github-actions/auth@v2'
-      with:
-        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+    # - name: install gcloud
+    #   uses: 'google-github-actions/setup-gcloud@v3'
+    # - name: auth service account 2
+    #   uses: 'google-github-actions/auth@v2'
+    #   with:
+    #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+    - name: gcr login
+      run: docker login -u _json_key_base64 --password ${{ secrets.GCP_CREDENTIALS }} https://${{secrets.GCP_REPO_URL}}
     - name: tag image
       run: docker tag parking-service-api:${{github.run_id}} ${{secrets.GCP_REPO_URL}}:${{github.run_id}}
     - name: push image
