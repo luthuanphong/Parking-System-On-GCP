@@ -11,7 +11,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { LoginComponent } from './login/login.component';
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent }
+  {
+    path: '',
+    children: [
+        { path: 'login', component: LoginComponent }
+    ]
+  }
 ];
 
 @NgModule({
@@ -27,6 +32,7 @@ const routes: Routes = [
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule
-  ]
+  ],
+  exports: [LoginComponent]
 })
 export class AuthModule { }
