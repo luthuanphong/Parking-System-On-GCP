@@ -8,10 +8,12 @@ output "redis_host" {
   description = "The IP address of the Redis instance"
 }
 
+/*
 output "gke_cluster_endpoint" {
   value       = google_container_cluster.primary.endpoint
   description = "The endpoint for the GKE cluster"
 }
+*/
 
 output "vpc_network_name" {
   value       = google_compute_network.vpc.name
@@ -21,4 +23,16 @@ output "vpc_network_name" {
 output "subnet_name" {
   value       = google_compute_subnetwork.subnet.name
   description = "The name of the subnet"
+}
+
+output "db_user" {
+  value       = data.google_secret_manager_secret_version.db_user
+  description = "The name of the subnet"
+  sensitive = true
+}
+
+output "db_password" {
+  value       = data.google_secret_manager_secret_version.db_password
+  description = "The name of the subnet"
+  sensitive = true
 }

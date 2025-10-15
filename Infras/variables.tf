@@ -51,6 +51,7 @@ variable "postgres_version" {
   default     = "POSTGRES_14"
 }
 
+/*
 variable "db_user" {
   description = "PostgreSQL user name"
   type        = string
@@ -63,6 +64,7 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+*/
 
 variable "kms_keyring_name" {
   description = "Name of the Cloud KMS KeyRing"
@@ -98,6 +100,11 @@ variable "redis_version" {
   description = "The version of Redis software"
   type        = string
   default     = "REDIS_6_X"
+}
+
+variable "service_account_role" {
+    description = "The role to be assigned to the service account (e.g., roles/secretmanager.secretAccessor)"
+    type        = string
 }
 
 variable "environment" {

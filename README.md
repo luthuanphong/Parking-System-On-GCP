@@ -5,9 +5,16 @@ Terraform Structure
     - terraform.tfvars
         - variable data not recommended as it's plain text file
         - Recommend to use Secret Manager (Google Secret Manager)
-    - command: (refers)[./terraform_common_commands.md]
+    - command: (refers)[.terraform_common_commands.md]
 
 GCP Resource
+- IAM
+    - Purpose: To define access of the service account for Cloud Steps:
+    - Create a new Role:
+        - Types: Custom Role (Basic/Predefine/Custom)
+        - Role Launch Stage: GA (Alpha/Beta/GA/Disabled)
+    - Create new service account via terrform
+    - Bind the created custom roles to create service account with terrform
 - Cloud Storage Bucket
     - Purpose: Store terraform config on GCP
     - Region: Singapore
@@ -20,7 +27,23 @@ GCP Resource
         - No Object Versioning, No Retention 
         - Encryption: Use Google-managed encryption key
 - Google Secret Manager
+    - Purpose: Store sensitive data. 
+    - Usage: Apply into terraform for provisioning some resource such as Cloud SQL & Cloud Run
 - KMS
-- MemoryStore
-- Pub/Sub
+    - Purpose: It's for key management the purpose is for encrypting 
+- MemoryStore:
+    - Configuration:
+        
 - Cloud SQL
+    - Configurations:
+        - Provider: Postgres
+        - Supported Database flags:
+            - log_connections
+            - log_min_error_statement
+        - tier: db-custom-2-8192
+            - CPU: 2
+            - RAM: 8GB
+        - disk_type: SSD/HDD (default SSD)
+        - disk_size: 10 (default 10GB)
+- Pub/Sub
+- Cloud Run

@@ -17,6 +17,22 @@ provider "google" {
   zone    = var.zone
 }
 
+# load secrets for database credentialsdb_user
+data "google_secret_manager_secret_version" "db_user" {
+  secret  = "db_user"
+  version = "1"
+}
+
+data "google_secret_manager_secret_version" "db_password" {
+  secret  = "db_password"
+  version = "1"
+}
+
+locals {
+  db_user = try(jsondecode(data.google_secret_manager_secret_version.db_user), data.google_secret_manager_secret_version.db_user).secret_data
+  db_password = try(jsondecode(data.google_secret_manager_secret_version.db_password), data.google_secret_manager_secret_version.db_password).secret_data
+}
+
 # VPC Network
 resource "google_compute_network" "vpc" {
   name                    = "${var.project_name}-vpc"
@@ -44,7 +60,8 @@ resource "google_sql_database_instance" "postgres" {
 
   settings {
     tier = var.db_tier
-
+    disk_size = var.disk_size
+    disk_type = var.disk_type
     ip_configuration {
       ipv4_enabled = true
       authorized_networks {
@@ -61,16 +78,6 @@ resource "google_sql_database_instance" "postgres" {
       }
       point_in_time_recovery_enabled = true
       start_time                     = "02:00" # 2 AM UTC
-    }
-
-    database_flags {
-      name  = "max_connections"
-      value = "100"
-    }
-
-    database_flags {
-      name  = "postgresql.auto_explain.log_min_duration"
-      value = "300000" # Log queries that take more than 300ms
     }
 
     insights_config {
@@ -98,9 +105,9 @@ resource "google_sql_database" "database" {
 
 # Cloud SQL User
 resource "google_sql_user" "postgres_user" {
-  name     = var.db_user
+  name     = local.db_user
   instance = google_sql_database_instance.postgres.name
-  password = var.db_password
+  password = local.db_password
 }
 
 # Memorystore Redis Instance
@@ -142,6 +149,8 @@ resource "google_redis_instance" "cache" {
   depends_on = [google_compute_network.vpc]
 }
 
+/*
+
 # GKE Cluster
 resource "google_container_cluster" "primary" {
   name     = "${var.project_name}-gke"
@@ -160,7 +169,6 @@ resource "google_container_cluster" "primary" {
   }
 }
 
-/*
 # Service Account for Cloud Run
 resource "google_service_account" "cloud_run_sa" {
   account_id   = "${var.project_name}-run-sa"
@@ -218,71 +226,6 @@ resource "google_project_service" "run_api" {
 }
 */
 
-# Enable Secret Manager API
-resource "google_project_service" "secretmanager" {
-  service            = "secretmanager.googleapis.com"
-  disable_on_destroy = false
-}
-
-# Create secrets for database credentials
-resource "google_secret_manager_secret" "db_user" {
-  secret_id = "${var.project_name}-db-user"
-
-  replication {
-    auto {
-      customer_managed_encryption {
-        kms_key_name = google_kms_crypto_key.parking_key.id
-      }
-    }
-  }
-
-  depends_on = [google_project_service.secretmanager]
-}
-
-resource "google_secret_manager_secret" "db_password" {
-  secret_id = "${var.project_name}-db-password"
-
-  replication {
-    auto {
-      customer_managed_encryption {
-        kms_key_name = google_kms_crypto_key.parking_key.id
-      }
-    }
-  }
-
-  depends_on = [google_project_service.secretmanager]
-}
-
-# Store the secret values
-resource "google_secret_manager_secret_version" "db_user_value" {
-  secret      = google_secret_manager_secret.db_user.id
-  secret_data = var.db_user
-}
-
-resource "google_secret_manager_secret_version" "db_password_value" {
-  secret      = google_secret_manager_secret.db_password.id
-  secret_data = var.db_password
-}
-
-# Create a custom service account for accessing secrets
-resource "google_service_account" "secret_accessor" {
-  account_id   = "${var.project_name}-secret-accessor"
-  display_name = "Service Account for accessing secrets"
-}
-
-# Grant the service account access to read secrets
-resource "google_secret_manager_secret_iam_member" "secret_accessor_db_user" {
-  secret_id = google_secret_manager_secret.db_user.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.secret_accessor.email}"
-}
-
-resource "google_secret_manager_secret_iam_member" "secret_accessor_db_password" {
-  secret_id = google_secret_manager_secret.db_password.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.secret_accessor.email}"
-}
-
 # Cloud KMS KeyRing
 resource "google_kms_key_ring" "parking_keyring" {
   name     = "${var.project_name}-keyring"
@@ -306,6 +249,18 @@ resource "google_kms_crypto_key" "parking_key" {
   }
 }
 
+resource "google_service_account" "cloud_run_sa" {
+  account_id   = "${var.project_name}-run-sa"
+  display_name = "Service Account for Cloud Run"
+}
+
+# Grant the specified role to the service account
+resource "google_project_iam_member" "sa_role_binding" {
+  project = var.project_id
+  role    = var.service_account_role
+  member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+}
+
 /*
 # Grant Cloud Run SA access to KMS
 resource "google_kms_crypto_key_iam_member" "crypto_key_user" {
@@ -313,10 +268,11 @@ resource "google_kms_crypto_key_iam_member" "crypto_key_user" {
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:${google_service_account.cloud_run_sa.email}"
 }
-*/
 
 # Enable Cloud KMS API
 resource "google_project_service" "kms_api" {
   service            = "cloudkms.googleapis.com"
   disable_on_destroy = false
 }
+
+*/

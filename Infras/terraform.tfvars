@@ -4,11 +4,12 @@ region             = "asia-southeast1"
 zone               = "asia-southeast1-a"
 subnet_cidr        = "10.0.0.0/24"
 secondary_ip_range = "10.1.0.0/24"
-db_tier            = "db-f1-micro"
+db_tier            = "db-custom-2-8192"
 db_name            = "parking_system"
 gke_machine_type   = "e2-medium"
 
 # PostgreSQL Configuration
-postgres_version = "POSTGRES_14"
-db_user          = "postgres"
-db_password      = "your-secure-password" # Change this to a secure password
+service_account_role = "projects/quixotic-vent-475107-s1/roles/CustomRole"
+postgres_version = "POSTGRES_17"
+disk_size = "10"
+disk_type = "PD_SSD"
