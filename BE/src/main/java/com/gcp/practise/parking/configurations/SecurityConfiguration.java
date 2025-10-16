@@ -15,16 +15,24 @@ import com.gcp.practise.parking.filters.JwtTokenFilter;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
+    private static final String[] AUTH_WHITELIST = {
+        "/api/users/login", 
+        "/api/users/signup"
+    };
+
     @Bean
     SecurityFilterChain securityFilterChain(
         HttpSecurity http, JwtTokenFilter jwtFilter) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable)
           .cors(AbstractHttpConfigurer::disable)
-          .authorizeHttpRequests(req -> req.anyRequest().authenticated())
+          .authorizeHttpRequests(req -> req
+          .requestMatchers(AUTH_WHITELIST)
+          .permitAll()
+          .anyRequest()
+          .authenticated())
           .sessionManagement(session -> session.sessionCreationPolicy(
               org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
-        //   .authenticationProvider(authenticationProvider())
           .addFilterBefore(
               jwtFilter, 
               UsernamePasswordAuthenticationFilter.class

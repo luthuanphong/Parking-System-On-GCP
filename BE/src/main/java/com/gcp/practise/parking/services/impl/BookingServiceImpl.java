@@ -45,6 +45,10 @@ public class BookingServiceImpl implements BookingService {
         UserEntity user = userRepository.findById(userDetails.getUserId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
+        if (user.getBalanceCents() < 1000) { // Assuming 1000 cents ($10) is the minimum balance required
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient balance to book a parking spot");
+        }
+
         // Use cached parking spot information if available
         ParkingSpotResponse spotInfo = parkingLotService.findParkingSpotById(request.getSpotId());
         

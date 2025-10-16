@@ -1,0 +1,37 @@
+---
+config:
+  theme: forest
+---
+sequenceDiagram
+    actor User
+    participant UI as Web Interface
+    participant Auth as Authentication Service
+    participant Booking as Booking Service
+    participant Cache as MemoryStore (Redis)
+    participant DB as CloudSQL (PostgreSQL)
+    User->>UI: Enter login credentials
+    UI->>Auth: Validate credentials
+    Auth-->>UI: Login success
+    UI-->>User: Redirect to Booking Page
+    User->>UI: Request parking booking
+    UI->>Booking: Send booking request
+    Booking->>Cache: Get user info
+    Cache-->>Booking: Return user info
+    Booking->>Booking: Check user balance
+    alt Insufficient balance
+        Booking-->>UI: Error - Insufficient balance
+        UI-->>User: Show error message
+    else Sufficient balance
+        Booking->>Cache: Get parking spot data
+        Cache-->>Booking: Return spot data
+        Booking->>Booking: Check parking availability
+        alt Spot unavailable
+            Booking-->>UI: Error - Spot unavailable
+            UI-->>User: Show error message
+        else Spot available
+            Booking->>DB: Insert reservation record<br/>Update parking spot status<br/>Deduct user balance
+            DB-->>Booking: Confirmation success
+            Booking-->>UI: Reservation confirmed
+            UI-->>User: Show booking confirmation
+        end
+    end

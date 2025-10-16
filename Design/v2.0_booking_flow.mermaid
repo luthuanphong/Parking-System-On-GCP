@@ -1,0 +1,51 @@
+---
+config:
+  theme: forest
+---
+sequenceDiagram
+    actor User
+    participant UI
+    participant Auth as Authentication Service
+    participant Booking as Booking Service
+    participant Cache as MemoryStore (Redis)
+    participant DB as CloudSQL (PostgreSQL)
+    participant PubSub as Pub/Sub
+    participant Handler as Event Handler
+    User->>UI: Enter login credentials
+    UI->>Auth: Validate credentials
+    Auth-->>UI: Login success
+    UI-->>User: Redirect to Booking Page
+    User->>UI: Request parking booking
+    UI->>Booking: Send booking request
+    Booking->>Cache: Check existing reservation or request
+    alt Already reserved/request exists
+        Booking-->>UI: Error - Already has reservation
+        UI-->>User: Show error message
+    else No existing request
+        Booking->>Cache: Check user balance
+        alt Insufficient balance
+            Booking-->>UI: Error - Insufficient balance
+            UI-->>User: Show error message
+        else Sufficient balance
+            Booking->>Cache: Check parking spot availability
+            alt Spot unavailable
+                Booking-->>UI: Error - Spot unavailable
+                UI-->>User: Show error message
+            else Spot available
+                Booking->>Cache: Put temporary reservation request
+                Booking->>PubSub: Publish "ReservationRequested" event
+                PubSub-->>Handler: Deliver booking event
+                Handler->>Cache: Check if spot already reserved
+                alt Spot already reserved
+                    Handler-->>PubSub: Ignore event
+                else Spot not reserved
+                    Handler->>DB: Insert reservation record<br/>Update parking spot status
+                    DB-->>Handler: Reservation success
+                end
+                Handler->>Cache: Clear user booking request
+                Handler-->>PubSub: Acknowledge event completion
+                Booking-->>UI: Booking request submitted
+                UI-->>User: Show pending confirmation
+            end
+        end
+    end
