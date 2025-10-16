@@ -1,0 +1,22 @@
+// Response DTOs
+export interface LoginResponse {
+  id: number;
+  token: string;
+  username: string;
+  licensePlate: string;
+  balanceCents: number;
+}
+
+export interface ParkingSpotResponse {
+  id: number;
+  name: string;
+  isReserved: boolean;
+}
+
+export interface ReservationResponse {
+  spotId: number;
+  spotName: string;
+  userName: string;
+  userEmail: string;
+  reservedForDate: string;
+}

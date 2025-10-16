@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { UserService } from '../../services/user.service';
+import { LoginRequest } from '../../models/requests.model';
 
 @Component({
   selector: 'app-login',
@@ -11,10 +13,15 @@ import { Router } from '@angular/router';
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   hidePassword = true;
+  loading = false;
+  errorMessage = '';
+  returnUrl = '';
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
+    private userService: UserService
   ) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.email]],
@@ -22,12 +29,36 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // Get return url from route parameters or default to '/'
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+  }
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      // TODO: Implement login logic
-      console.log('Login form submitted:', this.loginForm.value);
+      this.loading = true;
+      this.errorMessage = '';
+
+      const loginRequest: LoginRequest = {
+        username: this.loginForm.value.username,
+        password: this.loginForm.value.password
+      };
+
+      this.userService.login(loginRequest).subscribe({
+        next: (response) => {
+          console.log('Login successful:', response);
+          // Navigate to the return url or dashboard
+          this.router.navigate([this.returnUrl]);
+        },
+        error: (error) => {
+          console.error('Login failed:', error);
+          this.errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
+          this.loading = false;
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
     }
   }
 }
