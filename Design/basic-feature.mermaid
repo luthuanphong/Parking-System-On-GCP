@@ -1,0 +1,11 @@
+---
+config:
+  theme: forest
+---
+flowchart TD
+    U[User] --> UC1["Login to system"]
+    U --> UC2["View available parking spots"]
+    U --> UC3["Book a parking spot"]
+    U --> UC4["View booking confirmation"]
+    UC3 --> UC4
+    UC2 --> UC3
