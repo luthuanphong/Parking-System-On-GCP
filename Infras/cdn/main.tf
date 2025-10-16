@@ -11,7 +11,6 @@ resource "google_compute_target_http_proxy" "default" {
   url_map = google_compute_url_map.default.id
 }
 
-# url map
 resource "google_compute_url_map" "default" {
   name            = "http-lb"
   default_service = google_compute_backend_bucket.default.id
@@ -38,9 +37,7 @@ resource "google_storage_bucket" "default" {
   location                    = var.region
   uniform_bucket_level_access = true
   storage_class               = "STANDARD"
-  // delete bucket and contents on destroy.
   force_destroy = true
-  // Assign specialty files
   website {
     main_page_suffix = "index.html"
     not_found_page   = "404.html"
