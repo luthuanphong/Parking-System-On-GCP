@@ -48,4 +48,6 @@ GCP Resource
         - disk_size: 10 (default 10GB)
 - Pub/Sub
 - Cloud Run
+    - Purpose: Host backend application
+    - Behind the scene is kubernetes
 
