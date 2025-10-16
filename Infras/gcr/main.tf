@@ -11,4 +11,5 @@ resource "google_artifact_registry_repository" "parking_api_repo" {
   repository_id = "parking-api-repo"
   format        = "DOCKER"
   description   = "Parking API repository for container images"
+  project = var.project_id
 }
