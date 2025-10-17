@@ -36,4 +36,18 @@ public class KmsEncryptionUtil {
             throw new RuntimeException("Error encrypting data with KMS", e);
         }
     }
+
+    public String decrypt(String ciphertext) {
+        try (KeyManagementServiceClient client = KeyManagementServiceClient.create()) {
+            CryptoKeyName keyName = CryptoKeyName.of(projectId, locationId, keyRingId, keyId);
+            
+            byte[] decodedCiphertext = Base64.getDecoder().decode(ciphertext);
+            ByteString ciphertextBytes = ByteString.copyFrom(decodedCiphertext);
+            ByteString plaintext = client.decrypt(keyName, ciphertextBytes).getPlaintext();
+            
+            return plaintext.toString(StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException("Error decrypting data with KMS", e);
+        }
+    }
 }

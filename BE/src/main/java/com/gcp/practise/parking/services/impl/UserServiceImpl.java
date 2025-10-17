@@ -12,6 +12,8 @@ import com.gcp.practise.parking.services.TokenService;
 import com.gcp.practise.parking.services.UserService;
 import com.gcp.practise.parking.utils.KmsEncryptionUtil;
 import lombok.RequiredArgsConstructor;
+
+import org.checkerframework.checker.units.qual.km;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,10 +80,9 @@ public class UserServiceImpl implements UserService {
 
         // Combine password with stored salt and encrypt
         String passwordWithSalt = request.getPassword() + user.getPasswordSalt();
-        String encryptedPassword = kmsEncryptionUtil.encrypt(passwordWithSalt);
-
+        String currentPassword = kmsEncryptionUtil.decrypt(user.getPasswordCiphertext());
         // Verify password
-        if (!encryptedPassword.equals(user.getPasswordCiphertext())) {
+        if (!passwordWithSalt.equals(currentPassword)) {
             throw new RuntimeException("Invalid credentials");
         }
 
