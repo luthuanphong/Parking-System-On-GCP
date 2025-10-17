@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080/api',
+  apiUrl: 'https://parking-service-api-652635654773.asia-southeast1.run.app/api',
   appName: 'Parking System',
   version: '1.0.0-dev',
   enableDebugTools: true,
