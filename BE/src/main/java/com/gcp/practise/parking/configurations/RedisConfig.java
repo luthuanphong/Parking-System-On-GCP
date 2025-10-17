@@ -53,7 +53,11 @@ public class RedisConfig {
             .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
         return RedisCacheManager.builder(connectionFactory)
-            .initialCacheNames(Set.of(CacheConfiguration.CACHE_NAME))
+            .initialCacheNames(Set.of(
+                CacheConfiguration.CACHE_NAME, 
+                CacheConfiguration.PARKING_SPOTS_CACHE_NAME,
+                CacheConfiguration.USER_CACHE_NAME
+            ))
             .cacheDefaults(config)
             .build();
     }

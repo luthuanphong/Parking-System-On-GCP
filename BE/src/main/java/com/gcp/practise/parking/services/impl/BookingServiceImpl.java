@@ -5,8 +5,6 @@ import com.gcp.practise.parking.dtos.responses.ParkingSpotResponse;
 import com.gcp.practise.parking.dtos.responses.ReservationResponse;
 import com.gcp.practise.parking.entities.ParkingSpotEntity;
 import com.gcp.practise.parking.entities.ReservationEntity;
-import com.gcp.practise.parking.entities.UserEntity;
-import com.gcp.practise.parking.repositories.UserRepository;
 import com.gcp.practise.parking.security.CustomUserDetails;
 import com.gcp.practise.parking.services.ParkingLotService;
 import com.gcp.practise.parking.utils.DateUtils;
@@ -14,17 +12,13 @@ import com.gcp.practise.parking.repositories.ParkingSpotRepository;
 import com.gcp.practise.parking.repositories.ReservationRepository;
 import com.gcp.practise.parking.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
 
 @Service

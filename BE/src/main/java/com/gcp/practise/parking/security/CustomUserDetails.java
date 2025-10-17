@@ -21,6 +21,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private final String licensePlate;
     private Long balanceCents;
     private final Integer vehicleId;
+    private final VehicleEntity vehicle;
 
     public CustomUserDetails(UserEntity user, VehicleEntity vehicle) {
         this.userId = user.getId();
@@ -29,6 +30,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.licensePlate = vehicle != null ? vehicle.getPlateNormalized() : null;
         this.balanceCents = user.getBalanceCents();
         this.vehicleId = vehicle != null ? vehicle.getId() : null;
+        this.vehicle = vehicle;
     }
 
     @Override

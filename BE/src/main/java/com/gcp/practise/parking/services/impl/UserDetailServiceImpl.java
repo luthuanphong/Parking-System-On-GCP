@@ -25,7 +25,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheConfiguration.CACHE_NAME, key = "#username", unless = "#result == null")
+    @Cacheable(value = CacheConfiguration.USER_CACHE_NAME, key = "#username", unless = "#result == null")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
@@ -36,7 +36,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return new CustomUserDetails(user, vehicle);
     }
 
-    @CachePut(value = CacheConfiguration.CACHE_NAME, key = "#userDetails.username")
+    @CachePut(value = CacheConfiguration.USER_CACHE_NAME, key = "#userDetails.username")
     public void updateUserBalance(CustomUserDetails userDetails) {
         userRepository.findById(userDetails.getUserId())
         .ifPresent(user -> {

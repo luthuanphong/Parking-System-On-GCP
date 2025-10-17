@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
 public interface ParkingSpotRepository extends JpaRepository<ParkingSpotEntity, Integer> {
 
     @Cacheable(
-        value = CacheConfiguration.CACHE_NAME,
-        key = CacheConfiguration.PARKING_SPOTS
+        value = CacheConfiguration.PARKING_SPOTS_CACHE_NAME
     )
     List<ParkingSpotEntity> findAll();
 }
