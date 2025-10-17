@@ -23,15 +23,15 @@ public class ReservationEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle_id")
+    @JoinColumn(name = "vehicle_id", insertable = false, updatable = false)
     private VehicleEntity vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "spot_id")
+    @JoinColumn(name = "spot_id", insertable = false, updatable = false)
     private ParkingSpotEntity spot;
 
     @Column(name = "reserved_for_date", nullable = false)
@@ -43,4 +43,19 @@ public class ReservationEntity {
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
+
+    @Column(name = "user_id")
+    private Integer userId;
+
+    @Column(name = "vehicle_id")
+    private Integer vehicleId;
+
+    @Column(name = "spot_id")
+    private Integer spotId;
+
+    @Override
+    public int hashCode() {
+        // TODO Auto-generated method stub
+        return super.hashCode();
+    }
 }

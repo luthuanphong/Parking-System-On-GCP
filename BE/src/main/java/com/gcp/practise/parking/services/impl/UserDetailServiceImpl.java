@@ -1,11 +1,14 @@
 package com.gcp.practise.parking.services.impl;
 
+import com.gcp.practise.parking.common.CacheConfiguration;
 import com.gcp.practise.parking.entities.UserEntity;
 import com.gcp.practise.parking.entities.VehicleEntity;
 import com.gcp.practise.parking.repositories.UserRepository;
 import com.gcp.practise.parking.repositories.VehicleRepository;
 import com.gcp.practise.parking.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,7 +25,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "userDetails", key = "#username", unless = "#result == null")
+    @Cacheable(value = CacheConfiguration.CACHE_NAME, key = "#username", unless = "#result == null")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
@@ -31,5 +34,14 @@ public class UserDetailServiceImpl implements UserDetailsService {
             .orElse(null);
 
         return new CustomUserDetails(user, vehicle);
+    }
+
+    @CachePut(value = CacheConfiguration.CACHE_NAME, key = "#userDetails.username")
+    public void updateUserBalance(CustomUserDetails userDetails) {
+        userRepository.findById(userDetails.getUserId())
+        .ifPresent(user -> {
+            user.setBalanceCents(userDetails.getBalanceCents());
+            userRepository.save(user);
+        });
     }
 }

@@ -19,7 +19,8 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private final String username;
     private final String password;
     private final String licensePlate;
-    private final Long balanceCents;
+    private Long balanceCents;
+    private final Integer vehicleId;
 
     public CustomUserDetails(UserEntity user, VehicleEntity vehicle) {
         this.userId = user.getId();
@@ -27,6 +28,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.password = user.getPasswordCiphertext();
         this.licensePlate = vehicle != null ? vehicle.getPlateNormalized() : null;
         this.balanceCents = user.getBalanceCents();
+        this.vehicleId = vehicle != null ? vehicle.getId() : null;
     }
 
     @Override
@@ -62,5 +64,9 @@ public class CustomUserDetails implements UserDetails, Serializable {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void setBalanceCents(Long newBalanceCents) {
+        this.balanceCents = newBalanceCents;
     }
 }

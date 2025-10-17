@@ -1,5 +1,6 @@
 package com.gcp.practise.parking.services.impl;
 
+import com.gcp.practise.parking.common.CacheConfiguration;
 import com.gcp.practise.parking.dtos.responses.ParkingSpotResponse;
 import com.gcp.practise.parking.dtos.responses.ReservationResponse;
 import com.gcp.practise.parking.entities.ParkingSpotEntity;
@@ -7,6 +8,8 @@ import com.gcp.practise.parking.entities.ReservationEntity;
 import com.gcp.practise.parking.repositories.ParkingSpotRepository;
 import com.gcp.practise.parking.repositories.ReservationRepository;
 import com.gcp.practise.parking.services.ParkingLotService;
+
+import org.apache.catalina.webresources.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -29,18 +32,13 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     private ParkingSpotRepository parkingSpotRepository;
 
     @Override
-    @Cacheable(value = "currentReservations", key = "#root.method.name")
     public List<ReservationResponse> getCurrentReservations() {
         LocalDate targetDate = getTargetDate();
-        
         List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(targetDate);
-        
         return currentReservations.stream()
             .map(this::mapToReservationResponse)
             .collect(Collectors.toList());
     }
-    
-
     
     private LocalDate getTargetDate() {
         // Check if current time is after 8 PM (20:00)
@@ -61,45 +59,28 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     }
 
     @Override
-    @Cacheable(value = "parkingSpot", key = "#spotId")
     public ParkingSpotResponse findParkingSpotById(Long spotId) {
         // Find the parking spot
-        ParkingSpotEntity spot = parkingSpotRepository.findById(spotId.intValue())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking spot not found"));
-
-        // Check if the spot is reserved for the target date
         LocalDate targetDate = getTargetDate();
-        boolean isReserved = reservationRepository.existsBySpotIdAndReservedForDate(spot.getId(), targetDate);
+        List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(targetDate);
+
+        boolean isReserved = currentReservations.stream()
+            .anyMatch(reservation -> reservation.getSpot().getId().equals(spotId));
 
         // Map to response
         return ParkingSpotResponse.builder()
-            .id(Long.valueOf(spot.getId()))
-            .name(spot.getName())
+            .id(spotId)
             .isReserved(isReserved)
             .build();
     }
 
     @Override
-    @Cacheable(value = "parkingSpots", key = "#root.method.name")
     public List<ParkingSpotResponse> getAllSpots() {
         // Get all parking spots
         List<ParkingSpotEntity> spots = parkingSpotRepository.findAll();
-        
-        // Get target date based on current time
-        LocalDate targetDate = getTargetDate();
-        
-        // Get all reserved spot IDs for the target date
-        Set<Integer> reservedSpotIds = reservationRepository.findByReservedForDate(targetDate)
-            .stream()
-            .map(reservation -> reservation.getSpot().getId())
-            .collect(Collectors.toSet());
-
-        // Map to response DTOs with reservation status
         return spots.stream()
             .map(spot -> ParkingSpotResponse.builder()
                 .id(Long.valueOf(spot.getId()))
-                .name(spot.getName())
-                .isReserved(reservedSpotIds.contains(spot.getId()))
                 .build())
             .collect(Collectors.toList());
     }

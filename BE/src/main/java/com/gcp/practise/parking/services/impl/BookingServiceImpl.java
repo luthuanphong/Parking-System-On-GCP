@@ -9,12 +9,17 @@ import com.gcp.practise.parking.entities.UserEntity;
 import com.gcp.practise.parking.repositories.UserRepository;
 import com.gcp.practise.parking.security.CustomUserDetails;
 import com.gcp.practise.parking.services.ParkingLotService;
+import com.gcp.practise.parking.utils.DateUtils;
 import com.gcp.practise.parking.repositories.ParkingSpotRepository;
 import com.gcp.practise.parking.repositories.ReservationRepository;
 import com.gcp.practise.parking.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,17 +40,16 @@ public class BookingServiceImpl implements BookingService {
     private ParkingLotService parkingLotService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDetailServiceImpl userDetailsServiceImpl;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    @CacheEvict(cacheNames = {"currentReservations", "parkingSpot", "parkingSpots"}, allEntries = true)
     public ReservationResponse bookParkingSpot(BookParkingSpotRequest request, CustomUserDetails userDetails) {
-        LocalDate targetDate = getTargetDate();
+        LocalDate targetDate = DateUtils.getTargetDate();
         
-        UserEntity user = userRepository.findById(userDetails.getUserId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        
-        if (user.getBalanceCents() < 1000) { // Assuming 1000 cents ($10) is the minimum balance required
+        if (userDetails.getBalanceCents() < 1000) { // Assuming 1000 cents ($10) is the minimum balance required
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient balance to book a parking spot");
         }
 
@@ -60,29 +64,30 @@ public class BookingServiceImpl implements BookingService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Parking spot is already reserved for this date");
         }
 
-        // Get the actual spot entity for persistence
-        ParkingSpotEntity spot = parkingSpotRepository.findById(request.getSpotId().intValue())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking spot not found"));
-        
+        ParkingSpotEntity spot = parkingSpotRepository.findAll()
+        .stream()
+        .filter(s -> s.getId().equals(request.getSpotId().intValue()))
+        .findFirst()
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking spot not found"));
+
         // Create new reservation
         ReservationEntity reservation = ReservationEntity.builder()
-            .spot(spot)
-            .user(user)
+            .spotId(spot.getId())
+            .userId(userDetails.getUserId())
+            .vehicleId(userDetails.getVehicleId())
             .reservedForDate(targetDate)
             .createdAt(OffsetDateTime.now())
             .build();
             
         ReservationEntity savedReservation = reservationRepository.save(reservation);
-        
+
+        userDetails.setBalanceCents(userDetails.getBalanceCents() - 1000);
+        userDetailsServiceImpl.updateUserBalance(userDetails);
+
+        ListOperations<String, Object> listOps = redisTemplate.opsForList();
+        listOps.leftPush(DateUtils.getTargetDate().toString(), savedReservation);
+
         return mapToReservationResponse(savedReservation);
-    }
-    
-    private LocalDate getTargetDate() {
-        // Check if current time is after 8 PM (20:00)
-        if (LocalTime.now().isAfter(LocalTime.of(20, 0))) {
-            return LocalDate.now().plusDays(1); // Use tomorrow's date
-        }
-        return LocalDate.now(); // Use today's date
     }
     
     private ReservationResponse mapToReservationResponse(ReservationEntity reservation) {

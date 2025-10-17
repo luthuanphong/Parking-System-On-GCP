@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.config;
+package com.gcp.practise.parking.configurations;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -15,7 +15,10 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import com.gcp.practise.parking.common.CacheConfiguration;
+
 import java.time.Duration;
+import java.util.Set;
 
 @Configuration
 @EnableCaching
@@ -45,11 +48,12 @@ public class RedisConfig {
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-            .entryTtl(Duration.ofMinutes(30))
+            .entryTtl(Duration.ZERO)
             .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
             .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
         return RedisCacheManager.builder(connectionFactory)
+            .initialCacheNames(Set.of(CacheConfiguration.CACHE_NAME))
             .cacheDefaults(config)
             .build();
     }
