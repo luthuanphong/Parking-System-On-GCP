@@ -188,6 +188,14 @@ API_BASE_URL=<backend-cloud-run-url>
 - ✅ Enable SSL/TLS for all connections
 - ✅ Implement proper authentication and authorization
 
+## Service Account
+# For deployment
+- Name:
+- Roles:
+# For cloudrun
+- Name:
+- Roles:
+
 ## 📊 Monitoring & Observability
 - **Cloud Logging**: Application and infrastructure logs
 - **Cloud Monitoring**: Metrics and alerting

@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BookParkingSpotRequest } from '../models/requests.model';
 import { ParkingSpotResponse, ReservationResponse } from '../models/responses.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ParkingService {
-  private apiUrl = '/api/parking';
+  private apiUrl = `${environment.apiUrl}/parking`;
 
   constructor(private http: HttpClient) {}
 

@@ -5,12 +5,13 @@ import { tap } from 'rxjs/operators';
 import { LoginRequest, SignupRequest, DepositRequest } from '../models/requests.model';
 import { LoginResponse } from '../models/responses.model';
 import { User } from '../models/user.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = '/api/users';
+  private apiUrl = `${environment.apiUrl}/users`;
   private tokenKey = 'auth_token';
 
   constructor(private http: HttpClient) {}

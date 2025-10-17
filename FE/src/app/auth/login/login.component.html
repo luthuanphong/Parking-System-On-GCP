@@ -8,37 +8,47 @@
       <mat-form-field class="form-field">
         <mat-label>Email</mat-label>
         <input matInput type="email" formControlName="username" placeholder="Enter your email">
-        <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
-          Email is required
-        </mat-error>
-        <mat-error *ngIf="loginForm.get('username')?.hasError('email')">
-          Please enter a valid email
-        </mat-error>
+        @if(loginForm.get('username')?.hasError('required')) {
+          <mat-error>Email is required</mat-error>
+        }
+
+        @if (loginForm.get('username')?.hasError('email')) {
+          <mat-error>Please enter a valid email</mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field class="form-field">
         <mat-label>Password</mat-label>
         <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
-          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        <button matIconButton matSuffix (click)="hidePassword = !hidePassword" type="button">
+          @if(hidePassword) {
+            <mat-icon>visibility_off</mat-icon>
+          } @else {
+            <mat-icon>visibility</mat-icon>
+          }
         </button>
-        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-          Password is required
-        </mat-error>
-        <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
-          Password must be at least 6 characters
-        </mat-error>
+        @if(loginForm.get('password')?.hasError('required')) {
+          <mat-error>Password is required</mat-error>
+        }
+        @if(loginForm.get('password')?.hasError('minlength')) {
+          <mat-error>Password must be at least 6 characters</mat-error>
+        }
       </mat-form-field>
 
-      <mat-error *ngIf="errorMessage" class="error-alert">
-        {{ errorMessage }}
-      </mat-error>
+      @if(errorMessage) {
+        <mat-error class="error-alert">
+          {{ errorMessage }}
+        </mat-error>
+      }
 
       <div class="login-actions">
         <button mat-raised-button color="primary" type="submit" class="login-button" 
                 [disabled]="!loginForm.valid || loading">
-          <span *ngIf="!loading">Login</span>
-          <span *ngIf="loading">Logging in...</span>
+          @if(!loading) {
+            <span>Login</span>
+          } @else {
+            <span>Logging in...</span>
+          }
         </button>
       </div>
     </form>

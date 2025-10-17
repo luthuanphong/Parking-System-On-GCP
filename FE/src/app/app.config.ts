@@ -2,13 +2,17 @@ import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListen
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { AuthModule } from './auth/auth.module';
+import { provideHttpClient } from '@angular/common/http';
+import { MatIconModule } from '@angular/material/icon';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    importProvidersFrom(AuthModule)
+    provideHttpClient(),
+    importProvidersFrom(
+      MatIconModule
+    ) // Add any modules that need to be globally available
   ]
 };
