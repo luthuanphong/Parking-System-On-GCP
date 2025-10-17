@@ -1,23 +1,26 @@
 module "parent" {
-    source = "../"
-    project_id         = var.project_id
-    project_name       = var.project_name
-    region             = var.region
-    zone               = var.zone
+  source       = "../"
+  project_id   = var.project_id
+  project_name = var.project_name
+  region       = var.region
+  zone         = var.zone
 }
 
 resource "google_compute_target_http_proxy" "default" {
+  project = var.project_id
   name    = "http-lb-proxy"
   url_map = google_compute_url_map.default.id
 }
 
 resource "google_compute_url_map" "default" {
+  project         = var.project_id
   name            = "http-lb"
   default_service = google_compute_backend_bucket.default.id
 }
 
 # backend bucket with CDN policy with default ttl settings
 resource "google_compute_backend_bucket" "default" {
+  project     = var.project_id
   name        = "cat-backend-bucket"
   description = "Contains beautiful images"
   bucket_name = google_storage_bucket.default.name
@@ -33,14 +36,15 @@ resource "google_compute_backend_bucket" "default" {
 }
 
 resource "google_storage_bucket" "default" {
+  project                     = var.project_id
   name                        = "parking-service-ui"
   location                    = var.region
   uniform_bucket_level_access = true
   storage_class               = "STANDARD"
-  force_destroy = true
+  force_destroy               = true
   website {
     main_page_suffix = "index.html"
-    not_found_page   = "404.html"
+    not_found_page   = "index.html"
   }
 }
 
@@ -52,11 +56,13 @@ resource "google_storage_bucket_iam_member" "default" {
 
 # reserve IP address
 resource "google_compute_global_address" "default" {
-  name = "example-ip"
+  name    = "example-ip"
+  project = var.project_id
 }
 
 # forwarding rule
 resource "google_compute_global_forwarding_rule" "default" {
+  project               = var.project_id
   name                  = "http-lb-forwarding-rule"
   ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"

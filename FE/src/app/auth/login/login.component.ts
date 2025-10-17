@@ -1,31 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { UserService } from '../../services/user.service';
 import { LoginRequest } from '../../models/requests.model';
-import { MatInputModule } from '@angular/material/input';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatCard } from '@angular/material/card'
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     MatInputModule,
-    MatFormField,
-    MatButton,
-    MatError,
-    MatIcon,
-    MatLabel,
-    MatCard,
-    MatIcon,
-    MatIconButton,
+    MatFormFieldModule,
+    MatCardModule,
+    MatButtonModule,
     MatIconModule
   ]
 })
@@ -49,8 +45,8 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    // Get return url from route parameters or default to booking page
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/booking';
   }
 
   onSubmit(): void {

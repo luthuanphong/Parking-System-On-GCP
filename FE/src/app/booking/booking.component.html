@@ -1,0 +1,100 @@
+<div class="booking-container">
+  <!-- Top Panel with User Icon -->
+  <div class="top-panel">
+    <div class="panel-left">
+      <h1>Parking System</h1>
+    </div>
+    <div class="panel-right">
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-icon-button">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      
+      <!-- User Context Menu -->
+      <mat-menu #userMenu="matMenu" class="user-menu">
+        <button mat-menu-item (click)="onUserMenuAction('profile')">
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+        </button>
+        <button mat-menu-item (click)="onUserMenuAction('settings')">
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="onUserMenuAction('logout')">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    @if (errorMessage) {
+      <mat-card class="error-card">
+        <mat-icon color="warn">error</mat-icon>
+        {{ errorMessage }}
+      </mat-card>
+    }
+
+    @if (loading) {
+      <div class="loading-container">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        <p>Loading parking spots...</p>
+      </div>
+    } @else {
+      <!-- Current Reservations Section -->
+      @if (currentReservations.length > 0) {
+        <section class="reservations-section">
+          <h2>Your Current Reservations</h2>
+          <div class="reservations-grid">
+            @for (reservation of currentReservations; track reservation.spotId) {
+              <mat-card class="reservation-card">
+                <mat-card-header>
+                  <mat-card-title>{{ reservation.spotName }}</mat-card-title>
+                  <mat-card-subtitle>Reserved for {{ reservation.reservedForDate }}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                  <p><strong>User:</strong> {{ reservation.userName }}</p>
+                  <p><strong>Email:</strong> {{ reservation.userEmail }}</p>
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- Available Parking Spots Section -->
+      <section class="parking-spots-section">
+        <h2>Available Parking Spots</h2>
+        <div class="spots-grid">
+          @for (spot of parkingSpots; track spot.id) {
+            <mat-card class="spot-card" [class.reserved]="spot.isReserved">
+              <mat-card-header>
+                <mat-card-title>{{ spot.name }}</mat-card-title>
+                <mat-card-subtitle>
+                  @if (spot.isReserved) {
+                    <span class="status reserved">Reserved</span>
+                  } @else {
+                    <span class="status available">Available</span>
+                  }
+                </mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-actions>
+                @if (!spot.isReserved) {
+                  <button mat-raised-button color="primary" (click)="bookSpot(spot.id)">
+                    Book Spot
+                  </button>
+                } @else {
+                  <button mat-stroked-button disabled>
+                    Not Available
+                  </button>
+                }
+              </mat-card-actions>
+            </mat-card>
+          }
+        </div>
+      </section>
+    }
+  </div>
+</div>

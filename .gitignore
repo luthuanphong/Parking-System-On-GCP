@@ -1,3 +1,4 @@
 Infras/.terraform/**
 Infras/.terraform.lock.hcl
 *.exe
+*.hcl

@@ -1,47 +1,34 @@
-import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HttpErrorResponse
-} from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
 import { UserService } from '../services/user.service';
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const userService = inject(UserService);
+  const router = inject(Router);
 
-  constructor(
-    private userService: UserService,
-    private router: Router
-  ) {}
+  // Get the auth token from the service
+  const token = userService.getToken();
 
-  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    // Get the auth token from the service
-    const token = this.userService.getToken();
-
-    // Clone the request and add the authorization header if token exists
-    if (token) {
-      request = request.clone({
+  // Clone the request and add the authorization header if token exists
+  const authReq = token
+    ? req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
         }
-      });
-    }
-
-    // Handle the request and catch any errors
-    return next.handle(request).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          // Unauthorized - redirect to login
-          this.userService.logout();
-          this.router.navigate(['/auth/login']);
-        }
-        return throwError(() => error);
       })
-    );
-  }
-}
+    : req;
+
+  // Handle the request and catch any errors
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        // Unauthorized - redirect to login
+        userService.logout();
+        router.navigate(['/login']);
+      }
+      return throwError(() => error);
+    })
+  );
+};
