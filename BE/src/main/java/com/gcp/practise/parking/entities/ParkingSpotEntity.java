@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ParkingSpotEntity {
+public class ParkingSpotEntity implements java.io.Serializable {
 
     @Id
     private Integer id; // IDs provided externally (1..80)
