@@ -1,6 +1,7 @@
 package com.gcp.practise.parking.concurent;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;

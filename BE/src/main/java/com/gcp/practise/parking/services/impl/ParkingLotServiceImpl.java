@@ -55,7 +55,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     }
 
     @Override
-    public ParkingSpotResponse findParkingSpotById(Long spotId) {
+    public ParkingSpotResponse findParkingSpotById(Integer spotId) {
         // Find the parking spot
         LocalDate targetDate = getTargetDate();
         List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(targetDate);
@@ -76,7 +76,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         List<ParkingSpotEntity> spots = parkingSpotRepository.findAll();
         return spots.stream()
             .map(spot -> ParkingSpotResponse.builder()
-                .id(Long.valueOf(spot.getId()))
+                .id(spot.getId())
                 .build())
             .collect(Collectors.toList());
     }

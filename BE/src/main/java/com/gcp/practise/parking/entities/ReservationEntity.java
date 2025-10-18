@@ -6,6 +6,8 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
+import com.gcp.practise.parking.security.CustomUserDetails;
+
 @Entity
 @Table(name = "reservations", indexes = {
         @Index(columnList = "spot_id, reserved_for_date"),
@@ -16,7 +18,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReservationEntity {
+public class ReservationEntity implements java.io.Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,9 +55,7 @@ public class ReservationEntity {
     @Column(name = "spot_id")
     private Integer spotId;
 
-    @Override
-    public int hashCode() {
-        // TODO Auto-generated method stub
-        return super.hashCode();
+    public CustomUserDetails getUserDetails() {
+        return new CustomUserDetails(user, vehicle);
     }
 }
