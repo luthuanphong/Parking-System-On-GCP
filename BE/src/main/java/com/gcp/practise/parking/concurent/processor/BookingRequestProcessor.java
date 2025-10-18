@@ -11,8 +11,8 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -41,7 +41,7 @@ public class BookingRequestProcessor implements DisposableBean {
     private ReservationRepository reservationRepository;
 
     @Autowired
-    private RedisCacheManager cacheManager;
+    private CacheManager cacheManager;
 
     @Autowired
     private UserRepository userRepository;

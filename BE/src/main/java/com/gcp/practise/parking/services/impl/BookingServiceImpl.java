@@ -16,7 +16,7 @@ import com.gcp.practise.parking.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
-import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,7 +32,7 @@ public class BookingServiceImpl implements BookingService {
     private ParkingLotService parkingLotService;
 
     @Autowired
-    private RedisCacheManager cacheManager;
+    private CacheManager cacheManager;
 
     @Autowired
     private BookingProcessingQueue bookingProcessingQueue;
