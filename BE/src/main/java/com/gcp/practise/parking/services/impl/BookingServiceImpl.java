@@ -1,31 +1,29 @@
 package com.gcp.practise.parking.services.impl;
 
+import com.gcp.practise.parking.common.CacheConfiguration;
+import com.gcp.practise.parking.concurent.BookingProcessingQueue;
+import com.gcp.practise.parking.dtos.BookingProcessing;
 import com.gcp.practise.parking.dtos.requests.BookParkingSpotRequest;
 import com.gcp.practise.parking.dtos.responses.ParkingSpotResponse;
 import com.gcp.practise.parking.dtos.responses.ReservationResponse;
 import com.gcp.practise.parking.entities.ParkingSpotEntity;
-import com.gcp.practise.parking.entities.ReservationEntity;
+import com.gcp.practise.parking.enums.ReservationStatus;
 import com.gcp.practise.parking.security.CustomUserDetails;
 import com.gcp.practise.parking.services.ParkingLotService;
-import com.gcp.practise.parking.utils.DateUtils;
+
 import com.gcp.practise.parking.repositories.ParkingSpotRepository;
-import com.gcp.practise.parking.repositories.ReservationRepository;
 import com.gcp.practise.parking.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
 
 @Service
 public class BookingServiceImpl implements BookingService {
-
-    @Autowired
-    private ReservationRepository reservationRepository;
     
     @Autowired
     private ParkingSpotRepository parkingSpotRepository;
@@ -34,17 +32,23 @@ public class BookingServiceImpl implements BookingService {
     private ParkingLotService parkingLotService;
 
     @Autowired
-    private UserDetailServiceImpl userDetailsServiceImpl;
+    private RedisCacheManager cacheManager;
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private BookingProcessingQueue bookingProcessingQueue;
 
     @Override
     public ReservationResponse bookParkingSpot(BookParkingSpotRequest request, CustomUserDetails userDetails) {
-        LocalDate targetDate = DateUtils.getTargetDate();
-        
+        BookingProcessing processing = new BookingProcessing(request, userDetails);
+
         if (userDetails.getBalanceCents() < 1000) { // Assuming 1000 cents ($10) is the minimum balance required
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient balance to book a parking spot");
+        }
+
+        Cache cache = cacheManager.getCache(CacheConfiguration.USER_RESERVATION_REQUEST_CACHE_NAME);
+        ValueWrapper cachedRequest = cache.putIfAbsent(userDetails.getUsername(), processing);
+        if (cachedRequest != null) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "A booking request is already in progress for this user");
         }
 
         // Use cached parking spot information if available
@@ -64,33 +68,11 @@ public class BookingServiceImpl implements BookingService {
         .findFirst()
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking spot not found"));
 
-        // Create new reservation
-        ReservationEntity reservation = ReservationEntity.builder()
-            .spotId(spot.getId())
-            .userId(userDetails.getUserId())
-            .vehicleId(userDetails.getVehicleId())
-            .reservedForDate(targetDate)
-            .createdAt(OffsetDateTime.now())
-            .build();
-            
-        ReservationEntity savedReservation = reservationRepository.save(reservation);
+        bookingProcessingQueue.addToQueue(processing);
 
-        userDetails.setBalanceCents(userDetails.getBalanceCents() - 1000);
-        userDetailsServiceImpl.updateUserBalance(userDetails);
-
-        ListOperations<String, Object> listOps = redisTemplate.opsForList();
-        listOps.leftPush(DateUtils.getTargetDate().toString(), savedReservation);
-
-        return mapToReservationResponse(savedReservation);
-    }
-    
-    private ReservationResponse mapToReservationResponse(ReservationEntity reservation) {
         return ReservationResponse.builder()
-            .spotId(Long.valueOf(reservation.getSpot().getId()))
-            .spotName(reservation.getSpot().getName())
-            .userName(reservation.getUser().getEmail())
-            .userEmail(reservation.getUser().getEmail())
-            .reservedForDate(reservation.getReservedForDate().toString())
+            .spotId(spot.getId().longValue())
+            .reservationStatus(ReservationStatus.RESERVING) // Indicate that the reservation is being processed
             .build();
     }
 }

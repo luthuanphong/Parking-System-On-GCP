@@ -1,5 +1,6 @@
 package com.gcp.practise.parking.dtos.responses;
 
+import com.gcp.practise.parking.enums.ReservationStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,4 +12,5 @@ public class ReservationResponse {
     private String userName;
     private String userEmail;
     private String reservedForDate;
+    private ReservationStatus reservationStatus;
 }

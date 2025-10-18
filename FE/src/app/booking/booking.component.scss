@@ -131,6 +131,24 @@
   }
 }
 
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  
+  &.status-reserving {
+    background-color: #fff3e0;
+    color: #e65100;
+  }
+  
+  &.status-reserved {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+  }
+}
+
 .mat-card-actions {
   padding: 16px;
   margin: 0;

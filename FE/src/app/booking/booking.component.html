@@ -57,6 +57,11 @@
                 <mat-card-content>
                   <p><strong>User:</strong> {{ reservation.userName }}</p>
                   <p><strong>Email:</strong> {{ reservation.userEmail }}</p>
+                  <p><strong>Status:</strong> 
+                    <span class="status-badge" [class]="'status-' + reservation.reservationStatus.toLowerCase()">
+                      {{ reservation.reservationStatus }}
+                    </span>
+                  </p>
                 </mat-card-content>
               </mat-card>
             }

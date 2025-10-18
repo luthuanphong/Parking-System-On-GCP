@@ -10,6 +10,7 @@ import { ParkingService } from '../services/parking.service';
 import { UserService } from '../services/user.service';
 import { ParkingSpotResponse, ReservationResponse } from '../models/responses.model';
 import { BookParkingSpotRequest } from '../models/requests.model';
+import { ReservationStatus } from '../models/enums.model';
 
 @Component({
   selector: 'app-booking',
@@ -32,6 +33,9 @@ export class BookingComponent implements OnInit {
   loading = false;
   errorMessage = '';
   isUserMenuOpen = false;
+  
+  // Expose enum to template
+  ReservationStatus = ReservationStatus;
 
   constructor(
     private parkingService: ParkingService,

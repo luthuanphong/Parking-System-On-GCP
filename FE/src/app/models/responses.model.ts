@@ -1,3 +1,5 @@
+import { ReservationStatus } from './enums.model';
+
 // Response DTOs
 export interface LoginResponse {
   id: number;
@@ -19,4 +21,5 @@ export interface ReservationResponse {
   userName: string;
   userEmail: string;
   reservedForDate: string;
+  reservationStatus: ReservationStatus;
 }
