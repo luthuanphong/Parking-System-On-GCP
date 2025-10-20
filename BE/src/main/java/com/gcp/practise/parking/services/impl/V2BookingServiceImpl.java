@@ -5,6 +5,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import com.gcp.practise.parking.dtos.BookingProcessing;
+import com.gcp.practise.parking.dtos.BookingRequestPubsubMessage;
 import com.gcp.practise.parking.repositories.ParkingSpotRepository;
 import com.gcp.practise.parking.services.ParkingLotService;
 import com.google.cloud.spring.pubsub.core.PubSubTemplate;
@@ -17,6 +18,8 @@ public class V2BookingServiceImpl extends BaseBookingServiceImpl {
 
     private final PubSubTemplate pubSubTemplate;
 
+    private final String TOPIC = "parking-request-topic";
+
     public V2BookingServiceImpl(
         ParkingSpotRepository parkingSpotRepository, 
         ParkingLotService parkingLotService,
@@ -28,7 +31,15 @@ public class V2BookingServiceImpl extends BaseBookingServiceImpl {
 
     @Override
     protected void proceedRequest(BookingProcessing processing) {
-        
+        var request = processing.getRequest();
+        var userDetail = processing.getUserDetails();
+        pubSubTemplate.publish(TOPIC, 
+        BookingRequestPubsubMessage.builder()
+        .spotId(request.getSpotId())
+        .userId(userDetail.getUserId())
+        .username(userDetail.getUsername())
+        .vehicleId(userDetail.getVehicleId())
+        .build());
     }
 
 }
