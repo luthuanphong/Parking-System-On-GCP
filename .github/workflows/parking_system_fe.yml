@@ -5,8 +5,9 @@ name: Parking System FE build
 on:
   workflow_dispatch:
   push:
-    paths:
-      - '/FE/**'
+    branches: [ "main" ]
+    paths: 
+      - "FE/**"
 jobs:
   build:
     runs-on: ubuntu-latest
