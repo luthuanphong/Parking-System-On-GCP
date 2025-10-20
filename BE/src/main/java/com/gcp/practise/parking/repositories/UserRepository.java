@@ -6,6 +6,7 @@ import com.gcp.practise.parking.entities.UserEntity;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -23,5 +24,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @CachePut(value = CacheConfiguration.USER_REPOSITORY_CACHE, key = "#email")
     UserEntity save(UserEntity e);
 
-    Stream<UserEntity> streamAll();
+    @Query("""
+            SELECT u FROM UserEntity u
+            """)
+    Stream<UserEntity> getAllUser();
 }

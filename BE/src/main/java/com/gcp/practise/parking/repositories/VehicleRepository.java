@@ -5,6 +5,7 @@ import com.gcp.practise.parking.entities.VehicleEntity;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -22,5 +23,8 @@ public interface VehicleRepository extends JpaRepository<VehicleEntity, Integer>
         return findByUserId(userId).orElseThrow();
     }
 
-    Stream<VehicleEntity> streamAll();
+    @Query("""
+            SELECT v FROM VehicleEntity v
+            """)
+    Stream<VehicleEntity> getAllVehicle();
 }

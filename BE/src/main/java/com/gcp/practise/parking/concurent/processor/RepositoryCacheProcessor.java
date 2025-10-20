@@ -45,14 +45,14 @@ public class RepositoryCacheProcessor implements DisposableBean {
 
     private void syncUser() {
         Cache cache = cacheManager.getCache(CacheConfiguration.USER_REPOSITORY_CACHE);
-        try(Stream<UserEntity> uStream = userRepository.streamAll()) {
+        try(Stream<UserEntity> uStream = userRepository.getAllUser()) {
             uStream.forEach(user -> cache.put(user.getEmail(), user));
         }
     }
 
     private void syncVehicle() {
         Cache cache = cacheManager.getCache(CacheConfiguration.VEHICLE_REPOSITORY_CACHE);
-        try(Stream<VehicleEntity> vStream = vehicleRepository.streamAll()) {
+        try(Stream<VehicleEntity> vStream = vehicleRepository.getAllVehicle()) {
             vStream.forEach(vehicle -> cache.put(vehicle.getUserId(), vehicle));
         }
     }
