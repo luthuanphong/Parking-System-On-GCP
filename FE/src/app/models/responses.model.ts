@@ -23,3 +23,11 @@ export interface ReservationResponse {
   reservedForDate: string;
   reservationStatus: ReservationStatus;
 }
+
+export interface ErrorResponse {
+  status: number;
+  error: string;
+  message: string;
+  path: string;
+  timestamp: string;
+}

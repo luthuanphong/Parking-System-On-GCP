@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { ParkingService } from '../services/parking.service';
 import { UserService } from '../services/user.service';
+import { ToastService } from '../services/toast.service';
 import { ParkingSpotResponse, ReservationResponse } from '../models/responses.model';
 import { BookParkingSpotRequest } from '../models/requests.model';
 import { ReservationStatus } from '../models/enums.model';
@@ -39,7 +40,8 @@ export class BookingComponent implements OnInit {
 
   constructor(
     private parkingService: ParkingService,
-    private userService: UserService
+    private userService: UserService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -55,7 +57,7 @@ export class BookingComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        this.errorMessage = 'Failed to load parking spots';
+        // Error handling is now done by the interceptor
         this.loading = false;
         console.error('Error loading parking spots:', error);
       }
@@ -79,12 +81,13 @@ export class BookingComponent implements OnInit {
     this.parkingService.bookParkingSpot(request).subscribe({
       next: (reservation) => {
         console.log('Spot booked successfully:', reservation);
+        this.toastService.showSuccess(`Parking spot #${spotId} booked successfully!`);
         // Refresh the data
         this.loadParkingSpots();
         this.loadCurrentReservations();
       },
       error: (error) => {
-        this.errorMessage = 'Failed to book parking spot';
+        // Error handling is now done by the interceptor
         console.error('Error booking spot:', error);
       }
     });

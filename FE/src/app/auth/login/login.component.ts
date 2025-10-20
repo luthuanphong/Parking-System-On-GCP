@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { UserService } from '../../services/user.service';
+import { ToastService } from '../../services/toast.service';
 import { LoginRequest } from '../../models/requests.model';
 
 @Component({
@@ -36,7 +37,8 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private userService: UserService
+    private userService: UserService,
+    private toastService: ToastService
   ) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required]],
@@ -62,12 +64,13 @@ export class LoginComponent implements OnInit {
       this.userService.login(loginRequest).subscribe({
         next: (response) => {
           console.log('Login successful:', response);
+          this.toastService.showSuccess(`Welcome back, ${response.username}!`);
           // Navigate to the return url or dashboard
           this.router.navigate([this.returnUrl]);
         },
         error: (error) => {
           console.error('Login failed:', error);
-          this.errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
+          // Error handling is now done by the interceptor
           this.loading = false;
         },
         complete: () => {
