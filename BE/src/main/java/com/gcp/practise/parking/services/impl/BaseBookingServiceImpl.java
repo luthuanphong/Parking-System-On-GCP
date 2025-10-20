@@ -11,31 +11,24 @@ import com.gcp.practise.parking.enums.ReservationStatus;
 import com.gcp.practise.parking.security.CustomUserDetails;
 import com.gcp.practise.parking.services.ParkingLotService;
 
+import lombok.RequiredArgsConstructor;
+
 import com.gcp.practise.parking.repositories.ParkingSpotRepository;
 import com.gcp.practise.parking.services.BookingService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-
-@Service
-public class BookingServiceImpl implements BookingService {
+@RequiredArgsConstructor
+public abstract class BaseBookingServiceImpl implements BookingService {
     
-    @Autowired
-    private ParkingSpotRepository parkingSpotRepository;
+    private final ParkingSpotRepository parkingSpotRepository;
 
-    @Autowired
-    private ParkingLotService parkingLotService;
+    private final ParkingLotService parkingLotService;
 
-    @Autowired
-    private CacheManager cacheManager;
-
-    @Autowired
-    private BookingProcessingQueue bookingProcessingQueue;
+    private final CacheManager cacheManager;
 
     @Override
     public ReservationResponse bookParkingSpot(BookParkingSpotRequest request, CustomUserDetails userDetails) {
@@ -68,11 +61,13 @@ public class BookingServiceImpl implements BookingService {
         .findFirst()
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking spot not found"));
 
-        bookingProcessingQueue.addToQueue(processing);
+        proceedRequest(processing);
 
         return ReservationResponse.builder()
             .spotId(spot.getId().longValue())
             .reservationStatus(ReservationStatus.RESERVING) // Indicate that the reservation is being processed
             .build();
     }
+
+    protected abstract void proceedRequest(BookingProcessing processing);
 }

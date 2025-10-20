@@ -9,6 +9,8 @@ import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -27,6 +29,7 @@ import com.gcp.practise.parking.security.CustomUserDetails;
 import com.gcp.practise.parking.utils.DateUtils;
 
 @Component
+@ConditionalOnProperty(name = "application.features.version.booking", havingValue = "1")
 public class BookingRequestProcessor implements DisposableBean {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();

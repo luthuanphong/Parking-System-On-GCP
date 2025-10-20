@@ -24,8 +24,6 @@ public class RepositoryCacheProcessor implements DisposableBean {
 
     private final ExecutorService executor = Executors.newFixedThreadPool(1);
 
-    private volatile boolean running = true;
-
     @Autowired
     private UserRepository userRepository;
 
