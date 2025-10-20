@@ -7,10 +7,12 @@ import com.gcp.practise.parking.security.CustomUserDetails;
 import com.gcp.practise.parking.services.BookingService;
 import com.gcp.practise.parking.services.ParkingLotService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -32,8 +34,7 @@ public class ParkingLotController {
     @PostMapping("/reservations")
     public ResponseEntity<ReservationResponse> bookParkingSpot(
             @RequestBody BookParkingSpotRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-            
+            @Value("#{request.userPrincipal.principal}") CustomUserDetails userDetails) {
         ReservationResponse reservation = bookingService.bookParkingSpot(request, userDetails);
         return ResponseEntity.ok(reservation);
     }
