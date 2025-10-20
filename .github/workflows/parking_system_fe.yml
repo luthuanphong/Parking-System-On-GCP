@@ -22,3 +22,9 @@ jobs:
     - name: Build package
       working-directory: './FE'
       run: pnpm build
+    - name: auth service account 2
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+    - name: install gcloud
+      uses: 'google-github-actions/setup-gcloud@v3'
