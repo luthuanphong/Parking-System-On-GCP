@@ -13,6 +13,7 @@ import { environment } from '../../environments/environment';
 export class UserService {
   private apiUrl = `${environment.apiUrl}/users`;
   private tokenKey = 'auth_token';
+  private currentUser: LoginResponse | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -24,6 +25,7 @@ export class UserService {
       tap(response => {
         if (response.token) {
           this.setToken(response.token);
+          this.currentUser = response; // Store current user data
         }
       })
     );
@@ -76,5 +78,13 @@ export class UserService {
    */
   logout(): void {
     this.removeToken();
+    this.currentUser = null; // Clear current user data
+  }
+
+  /**
+   * Get current user data
+   */
+  getCurrentUser(): LoginResponse | null {
+    return this.currentUser;
   }
 }

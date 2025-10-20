@@ -1,0 +1,66 @@
+.deposit-dialog {
+  min-width: 400px;
+  max-width: 500px;
+}
+
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: #1976d2;
+}
+
+.current-balance {
+  background-color: #f5f5f5;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.current-balance p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.deposit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.amount-info {
+  background-color: #e3f2fd;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.info-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px 0;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.new-balance {
+  margin: 0;
+  font-weight: 600;
+  color: #388e3c;
+}
+
+mat-dialog-actions {
+  padding: 20px 0 0 0;
+  gap: 12px;
+}
+
+mat-dialog-actions button {
+  min-width: 100px;
+}

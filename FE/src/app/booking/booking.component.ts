@@ -6,12 +6,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog } from '@angular/material/dialog';
 import { ParkingService } from '../services/parking.service';
 import { UserService } from '../services/user.service';
 import { ToastService } from '../services/toast.service';
 import { ParkingSpotResponse, ReservationResponse } from '../models/responses.model';
-import { BookParkingSpotRequest } from '../models/requests.model';
+import { BookParkingSpotRequest, DepositRequest } from '../models/requests.model';
 import { ReservationStatus } from '../models/enums.model';
+import { DepositDialogComponent, DepositDialogData, DepositDialogResult } from '../components/deposit-dialog/deposit-dialog.component';
 
 @Component({
   selector: 'app-booking',
@@ -41,7 +43,8 @@ export class BookingComponent implements OnInit {
   constructor(
     private parkingService: ParkingService,
     private userService: UserService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -104,6 +107,58 @@ export class BookingComponent implements OnInit {
   onUserMenuAction(action: string): void {
     console.log('User menu action:', action);
     this.closeUserMenu();
-    // Handle menu actions here
+    
+    if (action === 'deposit') {
+      this.openDepositDialog();
+    }
+  }
+
+  openDepositDialog(): void {
+    // Get current user balance (assuming it's available from UserService)
+    const currentBalance = this.userService.getCurrentUser()?.balanceCents || 0;
+    
+    const dialogData: DepositDialogData = {
+      currentBalance: currentBalance
+    };
+
+    const dialogRef = this.dialog.open(DepositDialogComponent, {
+      width: '450px',
+      data: dialogData,
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe((result: DepositDialogResult | undefined) => {
+      if (result) {
+        this.processDeposit(result.amount);
+      }
+    });
+  }
+
+  processDeposit(amountInCents: number): void {
+    const currentUser = this.userService.getCurrentUser();
+    if (!currentUser) {
+      this.toastService.showError('User not found. Please log in again.');
+      return;
+    }
+
+    const depositRequest: DepositRequest = {
+      amountCents: amountInCents
+    };
+
+    this.userService.deposit(currentUser.id, depositRequest).subscribe({
+      next: (response) => {
+        this.toastService.showSuccess(
+          `Successfully deposited $${(amountInCents / 100).toFixed(2)}! New balance: $${(response.balanceCents / 100).toFixed(2)}`
+        );
+        // Update current user balance
+        if (this.userService.getCurrentUser()) {
+          this.userService.getCurrentUser()!.balanceCents = response.balanceCents;
+        }
+      },
+      error: (error) => {
+        // Error handling is done by the interceptor
+        console.error('Deposit failed:', error);
+      }
+    });
   }
 }

@@ -1,0 +1,59 @@
+<div class="deposit-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>account_balance_wallet</mat-icon>
+    Add Balance
+  </h2>
+  
+  <mat-dialog-content>
+    <div class="current-balance">
+      <p><strong>Current Balance:</strong> ${{ (data.currentBalance / 100).toFixed(2) }}</p>
+    </div>
+    
+    <form [formGroup]="depositForm" class="deposit-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Deposit Amount ($)</mat-label>
+        <input
+          matInput
+          type="number"
+          step="0.01"
+          min="10.00"
+          placeholder="Enter amount (minimum $10.00)"
+          formControlName="amount"
+        >
+        <mat-icon matPrefix>attach_money</mat-icon>
+        <mat-error *ngIf="depositForm.get('amount')?.hasError('required')">
+          Amount is required
+        </mat-error>
+        <mat-error *ngIf="depositForm.get('amount')?.hasError('min')">
+          Minimum deposit is $10.00
+        </mat-error>
+        <mat-error *ngIf="depositForm.get('amount')?.hasError('pattern')">
+          Please enter a valid amount
+        </mat-error>
+      </mat-form-field>
+      
+      <div class="amount-info" *ngIf="depositForm.get('amount')?.value">
+        <p class="info-text">
+          <mat-icon>info</mat-icon>
+          You will deposit: ${{ depositForm.get('amount')?.value?.toFixed(2) || '0.00' }}
+        </p>
+        <p class="new-balance">
+          New balance will be: ${{ ((data.currentBalance + (depositForm.get('amount')?.value * 100 || 0)) / 100).toFixed(2) }}
+        </p>
+      </div>
+    </form>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="!depositForm.valid"
+      (click)="onConfirm()"
+    >
+      <mat-icon>add</mat-icon>
+      Deposit
+    </button>
+  </mat-dialog-actions>
+</div>
