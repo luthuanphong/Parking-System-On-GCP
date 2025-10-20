@@ -167,7 +167,9 @@ For detailed Terraform commands, refer to [.terraform_common_commands.md](.terra
   - **Traffic Management**: Blue/green deployments
   - **Security**: Service-to-service authentication
 
-### API Gateway
+### Solutions description
+- Version 1.0
+- Version 2.0
 
 
 ## 🔧 Configuration

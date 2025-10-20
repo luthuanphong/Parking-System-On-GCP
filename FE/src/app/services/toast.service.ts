@@ -31,10 +31,22 @@ export class ToastService {
    */
   showError(message: string, config?: ToastConfig): void {
     this.snackBar.open(message, 'Close', {
-      duration: config?.duration || 6000,
+      duration: config?.duration || 8000, // Longer duration for errors
       horizontalPosition: config?.horizontalPosition || 'center',
       verticalPosition: config?.verticalPosition || 'top',
       panelClass: ['error-toast', ...(config?.panelClass || [])]
+    });
+  }
+
+  /**
+   * Show critical error that persists until dismissed
+   */
+  showCriticalError(message: string, config?: ToastConfig): void {
+    this.snackBar.open(message, 'Dismiss', {
+      duration: 0, // No auto-dismiss for critical errors
+      horizontalPosition: config?.horizontalPosition || 'center',
+      verticalPosition: config?.verticalPosition || 'top',
+      panelClass: ['error-toast', 'critical-error', ...(config?.panelClass || [])]
     });
   }
 

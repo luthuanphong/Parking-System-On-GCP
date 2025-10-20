@@ -31,8 +31,23 @@ html, body {
 }
 
 .error-toast {
-  background-color: #f44336 !important;
+  background-color: #d32f2f !important; /* Darker red for better visibility */
   color: white !important;
+  border-left: 4px solid #b71c1c !important; /* Dark red border accent */
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3) !important; /* Red shadow */
+}
+
+.critical-error {
+  background-color: #b71c1c !important; /* Even darker red for critical errors */
+  border: 2px solid #d32f2f !important;
+  box-shadow: 0 6px 16px rgba(183, 28, 28, 0.5) !important; /* Stronger shadow */
+  animation: pulse-error 2s infinite !important;
+}
+
+@keyframes pulse-error {
+  0% { box-shadow: 0 6px 16px rgba(183, 28, 28, 0.5); }
+  50% { box-shadow: 0 6px 20px rgba(183, 28, 28, 0.7); }
+  100% { box-shadow: 0 6px 16px rgba(183, 28, 28, 0.5); }
 }
 
 .warning-toast {
@@ -50,4 +65,16 @@ html, body {
 .warning-toast .mat-mdc-snack-bar-action,
 .info-toast .mat-mdc-snack-bar-action {
   color: white !important;
+  font-weight: 600 !important;
+}
+
+/* Make error toast text more prominent */
+.error-toast .mat-mdc-snack-bar-label {
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+.critical-error .mat-mdc-snack-bar-label {
+  font-weight: 600 !important;
+  font-size: 15px !important;
 }
