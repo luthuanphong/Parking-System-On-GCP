@@ -142,10 +142,11 @@ export class BookingComponent implements OnInit {
     }
 
     const depositRequest: DepositRequest = {
+      email: currentUser.username,
       amountCents: amountInCents
     };
 
-    this.userService.deposit(currentUser.id, depositRequest).subscribe({
+    this.userService.deposit(depositRequest).subscribe({
       next: (response) => {
         this.toastService.showSuccess(
           `Successfully deposited $${(amountInCents / 100).toFixed(2)}! New balance: $${(response.balanceCents / 100).toFixed(2)}`

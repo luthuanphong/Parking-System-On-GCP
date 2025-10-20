@@ -33,4 +33,8 @@ public class UserEntity implements java.io.Serializable {
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
+
+    @OneToOne
+    @JoinColumn(referencedColumnName = "user_id")
+    private VehicleEntity vehicleEntity;
 }

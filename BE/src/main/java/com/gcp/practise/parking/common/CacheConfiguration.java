@@ -11,12 +11,17 @@ public final class CacheConfiguration {
     public static final String RESERVATIONS_CACHE_NAME = "reservationsCache";
     public static final String RESERVED_USER_CACHE_NAME = "reservedUser";
 
+    public static final String USER_REPOSITORY_CACHE = "userRepositoryCache";
+    public static final String VEHICLE_REPOSITORY_CACHE = "vehicleRepositoryCache";
+
     public static Set<String> allCacheNames = Set.of(
             CACHE_NAME,
             PARKING_SPOTS_CACHE_NAME,
             USER_CACHE_NAME,
             USER_RESERVATION_REQUEST_CACHE_NAME,
             RESERVATIONS_CACHE_NAME,
-            RESERVED_USER_CACHE_NAME
+            RESERVED_USER_CACHE_NAME,
+            USER_REPOSITORY_CACHE,
+            VEHICLE_REPOSITORY_CACHE
         );
 }

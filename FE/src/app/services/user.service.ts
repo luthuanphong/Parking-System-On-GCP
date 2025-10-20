@@ -41,8 +41,8 @@ export class UserService {
   /**
    * Deposit money to user account
    */
-  deposit(userId: number, request: DepositRequest): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${userId}/deposit`, request);
+  deposit(request: DepositRequest): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/deposit`, request);
   }
 
   /**

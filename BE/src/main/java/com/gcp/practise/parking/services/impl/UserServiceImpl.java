@@ -1,5 +1,6 @@
 package com.gcp.practise.parking.services.impl;
 
+import com.gcp.practise.parking.common.CacheConfiguration;
 import com.gcp.practise.parking.dtos.requests.DepositRequest;
 import com.gcp.practise.parking.dtos.requests.LoginRequest;
 import com.gcp.practise.parking.dtos.requests.SignupRequest;
@@ -8,12 +9,13 @@ import com.gcp.practise.parking.entities.UserEntity;
 import com.gcp.practise.parking.entities.VehicleEntity;
 import com.gcp.practise.parking.repositories.UserRepository;
 import com.gcp.practise.parking.repositories.VehicleRepository;
+import com.gcp.practise.parking.security.CustomUserDetails;
 import com.gcp.practise.parking.services.TokenService;
 import com.gcp.practise.parking.services.UserService;
 import com.gcp.practise.parking.utils.KmsEncryptionUtil;
 import lombok.RequiredArgsConstructor;
 
-import org.checkerframework.checker.units.qual.km;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final VehicleRepository vehicleRepository;
     private final KmsEncryptionUtil kmsEncryptionUtil;
     private final TokenService tokenService;
+    private final CacheManager cacheManager;
     private static final SecureRandom secureRandom = new SecureRandom();
 
     @Override
@@ -75,9 +78,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
-        UserEntity user = userRepository.findByEmail(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+        UserEntity user = userRepository.findByEmailOrThrow(request.getUsername());
         // Combine password with stored salt and encrypt
         String passwordWithSalt = request.getPassword() + user.getPasswordSalt();
         String currentPassword = kmsEncryptionUtil.decrypt(user.getPasswordCiphertext());
@@ -87,9 +88,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // Get user's vehicle
-        VehicleEntity vehicle = vehicleRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-
+        VehicleEntity vehicle = vehicleRepository.findByUserIdOrThrow(user.getId());
         // Generate JWT token with claims
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
@@ -107,10 +106,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserEntity deposit(Integer userId, DepositRequest request) {
-        UserEntity userEntity = userRepository.findById(userId).orElseThrow();
+    @Transactional
+    public UserEntity deposit(DepositRequest request) {
+        UserEntity userEntity = userRepository.findByEmailOrThrow(request.getEmail());
+        VehicleEntity vehicleEntity = vehicleRepository.findByUserIdOrThrow(userEntity.getId());
         Long currentAmount = userEntity.getBalanceCents() != null ? userEntity.getBalanceCents() : 0L;
         userEntity.setBalanceCents(currentAmount + request.getAmountCents());
+
+        var newUserDetail = new CustomUserDetails(userEntity, vehicleEntity);
+        cacheManager.getCache(CacheConfiguration.USER_CACHE_NAME)
+        .put(userEntity.getEmail(), newUserDetail);
+        
         return userRepository.save(userEntity);
     }
 }

@@ -11,6 +11,7 @@ export interface SignupRequest {
 }
 
 export interface DepositRequest {
+  email: string;
   amountCents: number;
 }
 

@@ -25,11 +25,9 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{userId}/deposit")
-    public ResponseEntity<UserEntity> deposit(
-            @PathVariable Integer userId,
-            @Valid @RequestBody DepositRequest request) {
-        UserEntity updatedUser = userService.deposit(userId, request);
+    @PostMapping("/deposit")
+    public ResponseEntity<UserEntity> deposit(@Valid @RequestBody DepositRequest request) {
+        UserEntity updatedUser = userService.deposit(request);
         return ResponseEntity.ok(updatedUser);
     }
 

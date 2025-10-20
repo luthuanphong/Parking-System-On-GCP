@@ -18,7 +18,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.gcp.practise.parking.common.CacheConfiguration;
 
 import java.time.Duration;
-import java.util.Set;
 
 @Configuration
 @EnableCaching

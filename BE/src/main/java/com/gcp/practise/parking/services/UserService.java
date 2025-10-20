@@ -9,5 +9,5 @@ import com.gcp.practise.parking.entities.UserEntity;
 public interface UserService {
     UserEntity signup(SignupRequest request);
     LoginResponse login(LoginRequest request);
-    UserEntity deposit(Integer userId, DepositRequest request);
+    UserEntity deposit(DepositRequest request);
 }

@@ -27,4 +27,7 @@ public class VehicleEntity implements java.io.Serializable {
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
+
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Integer userId;
 }
