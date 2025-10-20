@@ -1,0 +1,21 @@
+# This is a basic workflow that is manually triggered
+
+name: Parking System FE build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '/FE/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: pnpm/action-setup@v4.2.0
+    - uses: actions/checkout@v5.0.0
+    - name: Instal package
+      working-directory: './FE'
+      run: pnpm install
+    - name: Build package
+      working-directory: './FE'
+      run: pnpm build
