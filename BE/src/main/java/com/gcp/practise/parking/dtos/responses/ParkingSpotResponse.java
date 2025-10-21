@@ -9,4 +9,5 @@ public class ParkingSpotResponse {
     private Integer id;
     private String name;
     private boolean isReserved;
+    private String reservedLicensePlate; // License plate if reserved
 }

@@ -64,7 +64,7 @@ public abstract class BaseBookingServiceImpl implements BookingService {
         proceedRequest(processing);
 
         return ReservationResponse.builder()
-            .spotId(spot.getId().longValue())
+            .spotId(spot.getId())
             .reservationStatus(ReservationStatus.RESERVING) // Indicate that the reservation is being processed
             .build();
     }

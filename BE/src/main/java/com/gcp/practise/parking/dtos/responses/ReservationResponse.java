@@ -7,10 +7,9 @@ import lombok.Data;
 @Data
 @Builder
 public class ReservationResponse {
-    private Long spotId;
-    private String spotName;
-    private String userName;
-    private String userEmail;
+    private Integer spotId;
+    private Integer userId;
+    private Integer vehicleId;
     private String reservedForDate;
     private ReservationStatus reservationStatus;
 }

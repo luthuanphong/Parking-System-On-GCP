@@ -13,6 +13,7 @@ export interface ParkingSpotResponse {
   id: number;
   name: string;
   isReserved: boolean;
+  reservedLicensePlate?: string; // License plate if reserved
 }
 
 export interface ReservationResponse {
@@ -30,4 +31,11 @@ export interface ErrorResponse {
   message: string;
   path: string;
   timestamp: string;
+}
+
+export interface VehicleResponse {
+  id: number;
+  userId: number;
+  plateNormalized: string;
+  createdAt: string;
 }

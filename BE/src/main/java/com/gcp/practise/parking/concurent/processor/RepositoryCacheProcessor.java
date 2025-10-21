@@ -44,17 +44,23 @@ public class RepositoryCacheProcessor implements DisposableBean {
         Cache userDetail = cacheManager.getCache(CacheConfiguration.USER_CACHE_NAME);
         Cache userRepoCache = cacheManager.getCache(CacheConfiguration.USER_REPOSITORY_CACHE);
         Cache vehicleRepoCahce = cacheManager.getCache(CacheConfiguration.VEHICLE_REPOSITORY_CACHE);
+        Cache allVehiclesCache = cacheManager.getCache(CacheConfiguration.ALL_VEHICLES_CACHE);
         executor.submit(() -> {
             userDetail.clear();
             userRepoCache.clear();
             vehicleRepoCahce.clear();
+            allVehiclesCache.clear();
 
             try (Stream<VehicleEntity> vStream = vehicleRepository.getAllVehicle()) {
+                java.util.List<VehicleEntity> allVehicles = new java.util.ArrayList<>();
                 vStream.forEach(v -> {
                     vehicleRepoCahce.put(v.getUserId(), v);
                     userRepoCache.put(v.getUser().getEmail(), v.getUser());
                     userDetail.put(v.getUser(), new CustomUserDetails(v.getUser(), v));
+                    allVehicles.add(v);
                 }); 
+                // Cache all vehicles under a single key
+                allVehiclesCache.put("ALL_VEHICLES", allVehicles);
             }
         });
     }

@@ -5,17 +5,19 @@ import com.gcp.practise.parking.dtos.responses.ParkingSpotResponse;
 import com.gcp.practise.parking.dtos.responses.ReservationResponse;
 import com.gcp.practise.parking.entities.ParkingSpotEntity;
 import com.gcp.practise.parking.entities.ReservationEntity;
+import com.gcp.practise.parking.entities.VehicleEntity;
 import com.gcp.practise.parking.repositories.ParkingSpotRepository;
 import com.gcp.practise.parking.repositories.ReservationRepository;
 import com.gcp.practise.parking.services.ParkingLotService;
+import com.gcp.practise.parking.utils.DateUtils;
 
-import org.apache.catalina.webresources.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,43 +25,32 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Autowired
     private ReservationRepository reservationRepository;
-    
+
     @Autowired
     private ParkingSpotRepository parkingSpotRepository;
-
-    @Override
+    
+    @Autowired
+    private CacheManager cacheManager;    @Override
     public List<ReservationResponse> getCurrentReservations() {
-        LocalDate targetDate = getTargetDate();
-        List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(targetDate);
+        List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(DateUtils.getTargetDate());
         return currentReservations.stream()
             .map(this::mapToReservationResponse)
             .collect(Collectors.toList());
     }
     
-    private LocalDate getTargetDate() {
-        // Check if current time is after 8 PM (20:00)
-        if (LocalTime.now().isAfter(LocalTime.of(20, 0))) {
-            return LocalDate.now().plusDays(1); // Use tomorrow's date
-        }
-        return LocalDate.now(); // Use today's date
-    }
-    
+   
     private ReservationResponse mapToReservationResponse(ReservationEntity reservation) {
         return ReservationResponse.builder()
-            .spotId(Long.valueOf(reservation.getSpot().getId()))
-            .spotName(reservation.getSpot().getName())
-            .userName(reservation.getUser().getEmail())
-            .userEmail(reservation.getUser().getEmail())
+            .spotId(reservation.getSpotId())
+            .userId(reservation.getUserId())
+            .vehicleId(reservation.getVehicleId())
             .reservedForDate(reservation.getReservedForDate().toString())
             .build();
     }
 
     @Override
     public ParkingSpotResponse findParkingSpotById(Integer spotId) {
-        // Find the parking spot
-        LocalDate targetDate = getTargetDate();
-        List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(targetDate);
-
+        List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(DateUtils.getTargetDate());
         boolean isReserved = currentReservations.stream()
             .anyMatch(reservation -> reservation.getSpot().getId().equals(spotId));
 
@@ -74,10 +65,51 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     public List<ParkingSpotResponse> getAllSpots() {
         // Get all parking spots
         List<ParkingSpotEntity> spots = parkingSpotRepository.findAll();
+        
+        // Get current reservations for today
+        List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(DateUtils.getTargetDate());
+        
+        // Create a map of spot ID to license plate for reserved spots
+        Map<Integer, String> reservedSpotLicensePlates = currentReservations.stream()
+            .collect(Collectors.toMap(
+                ReservationEntity::getSpotId, // Use spotId field directly
+                reservation -> getLicensePlateFromCache(reservation.getVehicleId()), // Get license from cache using vehicleId
+                (existing, replacement) -> existing // In case of duplicates, keep the first
+            ));
+        
         return spots.stream()
-            .map(spot -> ParkingSpotResponse.builder()
-                .id(spot.getId())
-                .build())
+            .map(spot -> {
+                boolean isReserved = reservedSpotLicensePlates.containsKey(spot.getId());
+                String licensePlate = isReserved ? reservedSpotLicensePlates.get(spot.getId()) : null;
+                
+                return ParkingSpotResponse.builder()
+                    .id(spot.getId())
+                    .name(spot.getName())
+                    .isReserved(isReserved)
+                    .reservedLicensePlate(licensePlate)
+                    .build();
+            })
             .collect(Collectors.toList());
+    }
+    
+    private String getLicensePlateFromCache(Integer vehicleId) {
+        Cache vehicleCache = cacheManager.getCache(CacheConfiguration.VEHICLE_REPOSITORY_CACHE);
+        if (vehicleCache != null) {
+            // Vehicle cache uses userId as key, but we have vehicleId
+            // We need to get from the all vehicles cache instead
+            Cache allVehiclesCache = cacheManager.getCache(CacheConfiguration.ALL_VEHICLES_CACHE);
+            if (allVehiclesCache != null) {
+                @SuppressWarnings("unchecked")
+                List<VehicleEntity> allVehicles = allVehiclesCache.get("ALL_VEHICLES", List.class);
+                if (allVehicles != null) {
+                    return allVehicles.stream()
+                            .filter(vehicle -> vehicle.getId().equals(vehicleId))
+                            .map(VehicleEntity::getPlateNormalized)
+                            .findFirst()
+                            .orElse("UNKNOWN");
+                }
+            }
+        }
+        return "UNKNOWN"; // Fallback if cache is not available
     }
 }
