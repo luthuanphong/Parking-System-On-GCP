@@ -14,26 +14,30 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import com.gcp.practise.parking.common.CacheConfiguration;
-import com.gcp.practise.parking.entities.UserEntity;
 import com.gcp.practise.parking.entities.VehicleEntity;
-import com.gcp.practise.parking.repositories.UserRepository;
 import com.gcp.practise.parking.repositories.VehicleRepository;
 import com.gcp.practise.parking.security.CustomUserDetails;
 
 
+
 @Component
 @ConditionalOnProperty(name = "application.features.version.booking", havingValue = "1")
+
 public class RepositoryCacheProcessor implements DisposableBean {
 
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
 
-    @Autowired
-    private UserRepository userRepository;
+    private final VehicleRepository vehicleRepository;
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
+    private final CacheManager cacheManager;
 
-    private CacheManager cacheManager;
+    public RepositoryCacheProcessor(
+        VehicleRepository vehicleRepository,
+        CacheManager cacheManager
+    ) {
+        this.cacheManager = cacheManager;
+        this.vehicleRepository = vehicleRepository;
+    }
 
     @EventListener(ApplicationStartedEvent.class)
     public void syncAll() {
