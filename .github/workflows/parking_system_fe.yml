@@ -30,7 +30,8 @@ jobs:
     - name: install gcloud
       uses: 'google-github-actions/setup-gcloud@v3'
     - name: clean
-      run: gcloud storage rm --recursive --continue-on-error gs://parking-service-ui/**
+      run: gcloud storage rm --recursive gs://parking-service-ui/**
+      continue-on-error: true
     - name: upload to Cloud Storage
       working-directory: './FE/dist/parking-system-ui/browser'
       run: gcloud storage cp --recursive ./ gs://parking-service-ui
