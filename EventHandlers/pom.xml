@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.gcp.practise.parking</groupId>
-	<artifactId>event-handler</artifactId>
+	<artifactId>handler</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>event-handler</name>
+	<name>handler</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
