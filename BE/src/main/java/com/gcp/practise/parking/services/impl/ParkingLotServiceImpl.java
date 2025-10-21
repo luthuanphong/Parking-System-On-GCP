@@ -52,7 +52,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     public ParkingSpotResponse findParkingSpotById(Integer spotId) {
         List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(DateUtils.getTargetDate());
         boolean isReserved = currentReservations.stream()
-            .anyMatch(reservation -> reservation.getSpot().getId().equals(spotId));
+            .anyMatch(reservation -> reservation.getSpotId().equals(spotId));
 
         // Map to response
         return ParkingSpotResponse.builder()

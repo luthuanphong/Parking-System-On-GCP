@@ -71,7 +71,7 @@
               [class.clickable]="!spot.isReserved"
               (click)="onCardClick(spot)">
               <mat-card-header>
-                <mat-card-title>{{ spot.name }}</mat-card-title>
+                <mat-card-title>{{ spot.name }} (ID: {{ spot.id }})</mat-card-title>
                 <mat-card-subtitle>
                   @if (spot.isReserved) {
                     <span class="status reserved">Reserved</span>
