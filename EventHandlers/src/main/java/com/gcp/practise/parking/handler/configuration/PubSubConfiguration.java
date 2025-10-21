@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler;
+package com.gcp.practise.parking.handler.configuration;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

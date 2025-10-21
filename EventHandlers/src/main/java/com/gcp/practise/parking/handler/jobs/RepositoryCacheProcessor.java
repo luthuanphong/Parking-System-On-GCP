@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.concurent.processor;
+package com.gcp.practise.parking.handler.jobs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +14,13 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import com.gcp.practise.parking.common.CacheConfiguration;
-import com.gcp.practise.parking.entities.VehicleEntity;
-import com.gcp.practise.parking.repositories.VehicleRepository;
-import com.gcp.practise.parking.security.CustomUserDetails;
+import com.gcp.practise.parking.handler.common.CacheConfiguration;
+import com.gcp.practise.parking.handler.entities.VehicleEntity;
+import com.gcp.practise.parking.handler.repositories.VehicleRepository;
+import com.gcp.practise.parking.handler.security.CustomUserDetails;
 
 @Component
-@ConditionalOnProperty(name = "application.features.version.booking", havingValue = "1")
+@ConditionalOnProperty(name = "application.features.version.booking", havingValue = "2")
 public class RepositoryCacheProcessor implements DisposableBean {
 
     private final ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -51,7 +51,6 @@ public class RepositoryCacheProcessor implements DisposableBean {
             userRepoCache.clear();
             vehicleRepoCahce.clear();
             vehicleRepoByIDCahce.clear();
-
             while (running) {
                 try (Stream<VehicleEntity> vStream = vehicleRepository.getAllVehicle()) {
                     List<VehicleEntity> entities = new ArrayList<>();
@@ -73,12 +72,12 @@ public class RepositoryCacheProcessor implements DisposableBean {
                     e.printStackTrace();
                 }
             }
-            
         });
     }
 
     @Override
     public void destroy() throws Exception {
+        running = false;
         executor.shutdown();
     }
 }

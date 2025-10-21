@@ -155,7 +155,6 @@ public class BookingRequestProcessor implements DisposableBean {
             CustomUserDetails userDetails = reservation.getUserDetails();
             userDetails.setBalanceCents(reservation.getUser().getBalanceCents() - 1000);
             if (userDetails != null) {
-                userDetails.setBalanceCents(userDetails.getBalanceCents() - 1000);
                 userCache.put(userDetails.getUsername(), userDetails);
             }
         });
