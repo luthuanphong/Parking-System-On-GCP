@@ -9,9 +9,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { ParkingService } from '../services/parking.service';
 import { UserService } from '../services/user.service';
-import { VehicleService } from '../services/vehicle.service';
 import { ToastService } from '../services/toast.service';
-import { ParkingSpotResponse, ReservationResponse, VehicleResponse } from '../models/responses.model';
+import { ParkingSpotResponse, ReservationResponse } from '../models/responses.model';
 import { BookParkingSpotRequest, DepositRequest } from '../models/requests.model';
 import { ReservationStatus } from '../models/enums.model';
 import { DepositDialogComponent, DepositDialogData, DepositDialogResult } from '../components/deposit-dialog/deposit-dialog.component';
@@ -34,8 +33,6 @@ import { DepositDialogComponent, DepositDialogData, DepositDialogResult } from '
 export class BookingComponent implements OnInit {
   parkingSpots: ParkingSpotResponse[] = [];
   currentReservations: ReservationResponse[] = [];
-  vehicles: VehicleResponse[] = [];
-  vehicleMap: Map<number, VehicleResponse> = new Map();
   loading = false;
   errorMessage = '';
   isUserMenuOpen = false;
@@ -46,31 +43,13 @@ export class BookingComponent implements OnInit {
   constructor(
     private parkingService: ParkingService,
     private userService: UserService,
-    private vehicleService: VehicleService,
     private toastService: ToastService,
     private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
-    this.loadVehicles();
     this.loadParkingSpots();
     this.loadCurrentReservations();
-  }
-
-  loadVehicles(): void {
-    this.vehicleService.getAllVehicles().subscribe({
-      next: (vehicles) => {
-        this.vehicles = vehicles;
-        // Create a map for quick lookup
-        this.vehicleMap.clear();
-        vehicles.forEach(vehicle => {
-          this.vehicleMap.set(vehicle.id, vehicle);
-        });
-      },
-      error: (error) => {
-        console.error('Error loading vehicles:', error);
-      }
-    });
   }
 
   loadParkingSpots(): void {
@@ -121,12 +100,6 @@ export class BookingComponent implements OnInit {
     if (!spot.reserved) {
       this.bookSpot(spot.id);
     }
-  }
-
-  getLicensePlate(vehicleId: number | undefined): string {
-    if (!vehicleId) return 'N/A';
-    const vehicle = this.vehicleMap.get(vehicleId);
-    return vehicle ? vehicle.plateNormalized : 'N/A';
   }
 
   toggleUserMenu(): void {

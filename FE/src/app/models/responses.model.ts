@@ -32,10 +32,3 @@ export interface ErrorResponse {
   path: string;
   timestamp: string;
 }
-
-export interface VehicleResponse {
-  id: number;
-  userId: number;
-  plateNormalized: string;
-  createdAt: string;
-}
