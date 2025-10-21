@@ -46,6 +46,9 @@ resource "google_storage_bucket" "default" {
     main_page_suffix = "index.html"
     not_found_page   = "index.html"
   }
+  soft_delete_policy {
+    retention_duration_seconds = 0
+  }
 }
 
 resource "google_storage_bucket_iam_member" "default" {
