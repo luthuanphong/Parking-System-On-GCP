@@ -16,7 +16,7 @@ public class BookingRequestHandler {
         BookingRequestPubsubMessage payload,
          @Header(GcpPubSubHeaders.ORIGINAL_MESSAGE) BasicAcknowledgeablePubsubMessage message
     ) {
-
+        
     } 
 
 }

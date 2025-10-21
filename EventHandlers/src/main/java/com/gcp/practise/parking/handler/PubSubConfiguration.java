@@ -16,7 +16,7 @@ import com.google.cloud.spring.pubsub.support.converter.JacksonPubSubMessageConv
 @Configuration
 public class PubSubConfiguration {
 
-    private static final String SUBSCRIPTION_KEY = "";
+    private static final String SUBSCRIPTION_KEY = "parking-request-consume";
 
     @Bean
     public JacksonPubSubMessageConverter jacksonPubSubMessageConverter(ObjectMapper objectMapper) {
