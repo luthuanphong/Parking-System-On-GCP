@@ -13,16 +13,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Get the auth token from the service
   const token = userService.getToken();
-
   // Clone the request and add the authorization header if token exists
   const authReq = token
     ? req.clone({
         setHeaders: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         }
       })
     : req;
-
+  
+  authReq.headers.set("Access-Control-Allow-Origin", "*");
+  authReq.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   // Handle the request and catch any errors
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
