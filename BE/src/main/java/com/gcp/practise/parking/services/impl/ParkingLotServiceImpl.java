@@ -6,6 +6,7 @@ import com.gcp.practise.parking.dtos.responses.ReservationResponse;
 import com.gcp.practise.parking.entities.ParkingSpotEntity;
 import com.gcp.practise.parking.entities.ReservationEntity;
 import com.gcp.practise.parking.entities.VehicleEntity;
+import com.gcp.practise.parking.enums.ReservationStatus;
 import com.gcp.practise.parking.repositories.ParkingSpotRepository;
 import com.gcp.practise.parking.repositories.ReservationRepository;
 import com.gcp.practise.parking.services.ParkingLotService;
@@ -45,6 +46,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
             .userId(reservation.getUserId())
             .vehicleId(reservation.getVehicleId())
             .reservedForDate(reservation.getReservedForDate().toString())
+            .reservationStatus(ReservationStatus.RESERVED)
             .build();
     }
 
