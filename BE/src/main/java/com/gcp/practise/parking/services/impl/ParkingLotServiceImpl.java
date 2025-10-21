@@ -9,6 +9,7 @@ import com.gcp.practise.parking.entities.VehicleEntity;
 import com.gcp.practise.parking.enums.ReservationStatus;
 import com.gcp.practise.parking.repositories.ParkingSpotRepository;
 import com.gcp.practise.parking.repositories.ReservationRepository;
+import com.gcp.practise.parking.repositories.VehicleRepository;
 import com.gcp.practise.parking.services.ParkingLotService;
 import com.gcp.practise.parking.utils.DateUtils;
 
@@ -29,6 +30,9 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Autowired
     private ParkingSpotRepository parkingSpotRepository;
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
     
     @Autowired
     private CacheManager cacheManager;    @Override
@@ -95,23 +99,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     }
     
     private String getLicensePlateFromCache(Integer vehicleId) {
-        Cache vehicleCache = cacheManager.getCache(CacheConfiguration.VEHICLE_REPOSITORY_CACHE);
-        if (vehicleCache != null) {
-            // Vehicle cache uses userId as key, but we have vehicleId
-            // We need to get from the all vehicles cache instead
-            Cache allVehiclesCache = cacheManager.getCache(CacheConfiguration.ALL_VEHICLES_CACHE);
-            if (allVehiclesCache != null) {
-                @SuppressWarnings("unchecked")
-                List<VehicleEntity> allVehicles = allVehiclesCache.get("ALL_VEHICLES", List.class);
-                if (allVehicles != null) {
-                    return allVehicles.stream()
-                            .filter(vehicle -> vehicle.getId().equals(vehicleId))
-                            .map(VehicleEntity::getPlateNormalized)
-                            .findFirst()
-                            .orElse("UNKNOWN");
-                }
-            }
-        }
-        return "UNKNOWN"; // Fallback if cache is not available
+        var vehicle = vehicleRepository.findByIdOrThrow(vehicleId);
+        return vehicle.getPlateNormalized();
     }
 }

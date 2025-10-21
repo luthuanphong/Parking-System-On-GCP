@@ -12,8 +12,9 @@ public final class CacheConfiguration {
     public static final String RESERVED_USER_CACHE_NAME = "reservedUser";
 
     public static final String USER_REPOSITORY_CACHE = "userRepositoryCache";
-    public static final String VEHICLE_REPOSITORY_CACHE = "vehicleRepositoryCache";
-    public static final String ALL_VEHICLES_CACHE = "allVehiclesCache";
+    public static final String VEHICLE_REPOSITORY_BY_USER_ID_CACHE = "vehicleRepositoryByUserIDCache";
+    public static final String VEHICLE_REPOSITORY_BY_ID_CACHE = "vehicleRepositoryByIDCache";
+    public static final String ALL_VEHICLE = "ALL_VEHICLE";
 
     public static Set<String> allCacheNames = Set.of(
             CACHE_NAME,
@@ -23,7 +24,8 @@ public final class CacheConfiguration {
             RESERVATIONS_CACHE_NAME,
             RESERVED_USER_CACHE_NAME,
             USER_REPOSITORY_CACHE,
-            VEHICLE_REPOSITORY_CACHE,
-            ALL_VEHICLES_CACHE
+            VEHICLE_REPOSITORY_BY_USER_ID_CACHE,
+            VEHICLE_REPOSITORY_BY_ID_CACHE,
+            ALL_VEHICLE
         );
 }

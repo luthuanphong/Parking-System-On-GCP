@@ -1,5 +1,7 @@
 package com.gcp.practise.parking.concurent.processor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
@@ -43,24 +45,26 @@ public class RepositoryCacheProcessor implements DisposableBean {
     public void syncAll() {
         Cache userDetail = cacheManager.getCache(CacheConfiguration.USER_CACHE_NAME);
         Cache userRepoCache = cacheManager.getCache(CacheConfiguration.USER_REPOSITORY_CACHE);
-        Cache vehicleRepoCahce = cacheManager.getCache(CacheConfiguration.VEHICLE_REPOSITORY_CACHE);
-        Cache allVehiclesCache = cacheManager.getCache(CacheConfiguration.ALL_VEHICLES_CACHE);
+        Cache vehicleRepoCahce = cacheManager.getCache(CacheConfiguration.VEHICLE_REPOSITORY_BY_USER_ID_CACHE);
+        Cache vehicleRepoByIDCahce = cacheManager.getCache(CacheConfiguration.VEHICLE_REPOSITORY_BY_ID_CACHE);
+        Cache allVehicles = cacheManager.getCache(CacheConfiguration.ALL_VEHICLE);
         executor.submit(() -> {
             userDetail.clear();
             userRepoCache.clear();
             vehicleRepoCahce.clear();
-            allVehiclesCache.clear();
+            vehicleRepoByIDCahce.clear();
 
             try (Stream<VehicleEntity> vStream = vehicleRepository.getAllVehicle()) {
-                java.util.List<VehicleEntity> allVehicles = new java.util.ArrayList<>();
+                List<VehicleEntity> entities = new ArrayList<>();
                 vStream.forEach(v -> {
                     vehicleRepoCahce.put(v.getUserId(), v);
+                    vehicleRepoByIDCahce.put(v.getId(), v);
                     userRepoCache.put(v.getUser().getEmail(), v.getUser());
                     userDetail.put(v.getUser(), new CustomUserDetails(v.getUser(), v));
-                    allVehicles.add(v);
+                    entities.add(v);
                 }); 
-                // Cache all vehicles under a single key
-                allVehiclesCache.put("ALL_VEHICLES", allVehicles);
+
+                allVehicles.put(CacheConfiguration.ALL_VEHICLE, entities);
             }
         });
     }
