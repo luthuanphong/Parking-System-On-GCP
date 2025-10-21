@@ -14,6 +14,6 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
     @Cacheable(
     value = CacheConfiguration.CACHE_NAME, 
-    key = "#reservedForDate")
+    key = "#reservedForDate.toString()")
     List<ReservationEntity> findByReservedForDate(LocalDate reservedForDate);
 }
