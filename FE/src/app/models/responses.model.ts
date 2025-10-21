@@ -12,7 +12,7 @@ export interface LoginResponse {
 export interface ParkingSpotResponse {
   id: number;
   name: string;
-  isReserved: boolean;
+  reserved: boolean;
   reservedLicensePlate?: string; // License plate if reserved
 }
 

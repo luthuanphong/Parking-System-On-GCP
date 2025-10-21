@@ -118,7 +118,7 @@ export class BookingComponent implements OnInit {
   }
 
   onCardClick(spot: ParkingSpotResponse): void {
-    if (!spot.isReserved) {
+    if (!spot.reserved) {
       this.bookSpot(spot.id);
     }
   }
