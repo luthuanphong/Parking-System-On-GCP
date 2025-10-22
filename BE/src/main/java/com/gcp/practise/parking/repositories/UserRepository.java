@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
         return findByEmail(email).orElseThrow();
     }
 
-    @CachePut(value = CacheConfiguration.USER_REPOSITORY_CACHE, key = "#email")
+    @CachePut(value = CacheConfiguration.USER_REPOSITORY_CACHE, key = "#e.email")
     UserEntity save(UserEntity e);
 
     @Query("""
