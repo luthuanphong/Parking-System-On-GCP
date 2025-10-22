@@ -31,8 +31,7 @@ public class PubSubConfiguration {
     @Bean
     public PubSubInboundChannelAdapter messageChannelAdapter(
         @Qualifier("pubSubInputChannel") MessageChannel inputChannel,
-        PubSubTemplate pubSubTemplate,
-        @Qualifier("subscriptionName") String subscriptionName) {
+        PubSubTemplate pubSubTemplate) {
         PubSubInboundChannelAdapter adapter =
             new PubSubInboundChannelAdapter(pubSubTemplate, SUBSCRIPTION_KEY);
         adapter.setOutputChannel(inputChannel);
