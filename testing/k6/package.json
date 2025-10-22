@@ -9,7 +9,6 @@
     "test:get-reservations": "k6 run get-reservations-test.js",
     "test:book-parking": "k6 run book-parking-spot-test.js",
     "test:get-spots": "k6 run get-parking-spots-test.js",
-    "test:user-flow": "k6 run complete-user-flow-test.js",
     "test:all": "pnpm run test:login && pnpm run test:deposit && pnpm run test:get-reservations && pnpm run test:book-parking && pnpm run test:get-spots"
   },
   "keywords": [],

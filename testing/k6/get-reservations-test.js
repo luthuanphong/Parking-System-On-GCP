@@ -1,11 +1,25 @@
 import http from 'k6/http';
-import { environment } from './config/setting';
-import { workload } from './config/workload';
+import { environment } from './config/setting.js';
+import { workload } from './config/workload.js';
+import { tokens } from './mock/mock.js';
+import { generateRandomFromRange } from './utils/RandomUtils.js'
 
 const options = {
-    stages: workload.normal
+    stages: workload.stress
 };
 
 export default function() {
-    
+    const url = `${environment.sandbox.URL}/parking/reservations`
+    const random_id = generateRandomFromRange(1, 1500);
+    const username =  `user_${random_id}`;
+    const token = tokens[username];
+
+    const params = {
+        Headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    };
+
+    http.get(url, params);
 }
