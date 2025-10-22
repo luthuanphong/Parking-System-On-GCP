@@ -73,7 +73,7 @@ public class RepositoryCacheProcessor implements DisposableBean {
                         vehicleRepoCahce.put(v.getUserId(), v);
                         vehicleRepoByIDCahce.put(v.getId(), v);
                         userRepoCache.put(v.getUser().getEmail(), v.getUser());
-                        userDetail.put(v.getUser(), new CustomUserDetails(v.getUser(), v));
+                        userDetail.put(v.getUser().getEmail(), new CustomUserDetails(v.getUser(), v));
                         entities.add(v);
                     }); 
 

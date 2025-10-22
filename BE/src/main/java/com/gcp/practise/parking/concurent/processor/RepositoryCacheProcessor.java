@@ -13,6 +13,9 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.gcp.practise.parking.common.CacheConfiguration;
 import com.gcp.practise.parking.entities.VehicleEntity;
@@ -29,14 +32,18 @@ public class RepositoryCacheProcessor implements DisposableBean {
 
     private final CacheManager cacheManager;
 
+    private final PlatformTransactionManager transactionManager;
+
     private volatile boolean running = true;
 
     public RepositoryCacheProcessor(
         VehicleRepository vehicleRepository,
-        CacheManager cacheManager
+        CacheManager cacheManager,
+        PlatformTransactionManager transactionManager
     ) {
         this.cacheManager = cacheManager;
         this.vehicleRepository = vehicleRepository;
+        this.transactionManager = transactionManager;
     }
 
     @EventListener(ApplicationStartedEvent.class)
@@ -53,6 +60,10 @@ public class RepositoryCacheProcessor implements DisposableBean {
             vehicleRepoByIDCahce.clear();
 
             while (running) {
+                DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+                definition.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED);
+                definition.setReadOnly(true);
+                TransactionStatus status = transactionManager.getTransaction(definition);
                 try (Stream<VehicleEntity> vStream = vehicleRepository.getAllVehicle()) {
                     List<VehicleEntity> entities = new ArrayList<>();
                     vStream.forEach(v -> {
@@ -66,6 +77,7 @@ public class RepositoryCacheProcessor implements DisposableBean {
                     allVehicles.put(CacheConfiguration.ALL_VEHICLE, entities);
                 }
 
+                transactionManager.commit(status);
                 try {
                     Thread.sleep(1800000);
                 } catch (InterruptedException e) {
