@@ -32,7 +32,7 @@ import { DepositDialogComponent, DepositDialogData, DepositDialogResult } from '
 })
 export class BookingComponent implements OnInit {
   parkingSpots: ParkingSpotResponse[] = [];
-  currentReservations: ReservationResponse[] = [];
+  // currentReservations: ReservationResponse[] = [];
   loading = false;
   errorMessage = '';
   isUserMenuOpen = false;
@@ -49,7 +49,7 @@ export class BookingComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadParkingSpots();
-    this.loadCurrentReservations();
+    // this.loadCurrentReservations();
   }
 
   loadParkingSpots(): void {
@@ -67,16 +67,16 @@ export class BookingComponent implements OnInit {
     });
   }
 
-  loadCurrentReservations(): void {
-    this.parkingService.getCurrentReservations().subscribe({
-      next: (reservations) => {
-        this.currentReservations = reservations;
-      },
-      error: (error) => {
-        console.error('Error loading reservations:', error);
-      }
-    });
-  }
+  // loadCurrentReservations(): void {
+  //   this.parkingService.getCurrentReservations().subscribe({
+  //     next: (reservations) => {
+  //       this.currentReservations = reservations;
+  //     },
+  //     error: (error) => {
+  //       console.error('Error loading reservations:', error);
+  //     }
+  //   });
+  // }
 
   bookSpot(spotId: number): void {
     const request: BookParkingSpotRequest = { spotId };
@@ -87,7 +87,7 @@ export class BookingComponent implements OnInit {
         this.toastService.showSuccess(`Parking spot #${spotId} booked successfully!`);
         // Refresh the data
         this.loadParkingSpots();
-        this.loadCurrentReservations();
+        // this.loadCurrentReservations();
       },
       error: (error) => {
         // Error handling is done by the interceptor

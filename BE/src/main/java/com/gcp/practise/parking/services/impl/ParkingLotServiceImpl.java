@@ -34,8 +34,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     @Autowired
     private VehicleRepository vehicleRepository;
     
-    @Autowired
-    private CacheManager cacheManager;    @Override
+    @Override
     public List<ReservationResponse> getCurrentReservations() {
         List<ReservationEntity> currentReservations = reservationRepository.findByReservedForDate(DateUtils.getTargetDate());
         return currentReservations.stream()
