@@ -35,7 +35,7 @@ public class TokenServiceImpl implements TokenService {
                 .claims(claims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 240)) // 10 days
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
