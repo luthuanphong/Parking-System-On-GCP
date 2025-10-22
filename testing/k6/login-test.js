@@ -1,10 +1,14 @@
 import http from 'k6/http';
+import { check } from 'k6';
 import { environment } from './config/setting.js';
 import { workload } from './config/workload.js';
 import { generateRandomFromRange } from './utils/RandomUtils.js'
+import { htmlReport } from './report/libs.js';
+import { textSummary } from './report/k6-summary.js';
 
 export const options = {
-    stages: workload.stress
+    stages: workload.stress,
+    thresholds: workload.thresholds
 };
 
 export default function() {
@@ -16,10 +20,20 @@ export default function() {
     });
 
     const params = {
-        Headers: {
+        headers: {
             'Content-Type': 'application/json'
         }
     };
 
-    http.post(url, payload, params);
+    const res = http.post(url, payload, params);
+    check(res, {
+        'is status 200': (r) => r.status === 200,
+    });
+}
+
+export function handleSummary(data) {
+  return {
+    './output/login.html': htmlReport(data),
+    stdout: textSummary(data, { indent: ' ', enableColors: true }),
+  }
 }
