@@ -36,6 +36,7 @@ public class BookingRequestHandler {
         BookingRequestPubsubMessage payload,
          @Header(GcpPubSubHeaders.ORIGINAL_MESSAGE) BasicAcknowledgeablePubsubMessage message
     ) {
+        log.info("Message arrived: {}", payload);
         LocalDate targetDate = DateUtils.getTargetDate();
         ReservationEntity reservation = ReservationEntity.builder()
                         .spotId(payload.getSpotId())

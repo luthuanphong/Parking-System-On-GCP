@@ -19,7 +19,10 @@ import com.gcp.practise.parking.handler.entities.VehicleEntity;
 import com.gcp.practise.parking.handler.repositories.VehicleRepository;
 import com.gcp.practise.parking.handler.security.CustomUserDetails;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 @ConditionalOnProperty(name = "application.features.version.booking", havingValue = "2")
 public class RepositoryCacheProcessor implements DisposableBean {
 
@@ -55,6 +58,7 @@ public class RepositoryCacheProcessor implements DisposableBean {
                 try (Stream<VehicleEntity> vStream = vehicleRepository.getAllVehicle()) {
                     List<VehicleEntity> entities = new ArrayList<>();
                     vStream.forEach(v -> {
+                        log.info("Input Vehicle into cache: {}", v);
                         vehicleRepoCahce.put(v.getUserId(), v);
                         vehicleRepoByIDCahce.put(v.getId(), v);
                         userRepoCache.put(v.getUser().getEmail(), v.getUser());
