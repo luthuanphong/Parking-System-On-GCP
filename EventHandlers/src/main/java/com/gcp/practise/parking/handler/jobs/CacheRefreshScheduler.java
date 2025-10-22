@@ -1,19 +1,17 @@
-package com.gcp.practise.parking.concurent.processor;
+package com.gcp.practise.parking.handler.jobs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.gcp.practise.parking.common.CacheConfiguration;
+import com.gcp.practise.parking.handler.common.CacheConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Component
-@ConditionalOnProperty(name = "application.features.version.booking", havingValue = "1")
+@ConditionalOnProperty(name = "application.features.version.booking", havingValue = "2")
 @Slf4j
 public class CacheRefreshScheduler {
 

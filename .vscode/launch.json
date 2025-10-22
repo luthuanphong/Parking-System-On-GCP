@@ -9,7 +9,16 @@
             "name": "ParkingSystemApplication",
             "request": "launch",
             "mainClass": "com.gcp.practise.parking.ParkingSystemApplication",
-            "projectName": "parking"
+            "projectName": "parking",
+            "cwd": "${workspaceFolder}/BE"
+        },
+        {
+            "type": "java",
+            "name": "HandlerApplication",
+            "request": "launch",
+            "mainClass": "com.gcp.practise.parking.handler.HandlerApplication",
+            "projectName": "handler",
+            "cwd": "${workspaceFolder}/EventHandlers"
         }
     ]
 }
