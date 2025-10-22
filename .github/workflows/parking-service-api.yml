@@ -61,4 +61,4 @@ jobs:
           -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization: token $GH_TOKEN" \
           https://api.github.com/repos/${{ github.repository_owner }}/Parking-System-On-GCP-Deployment/dispatches \
-          -d '{"event_type": "artifact_uploaded", "client_payload": {"run_id": "${{github.run_id}}"}}'
+          -d '{"event_type": "artifact_uploaded", "client_payload": {"run_id": "${{github.run_id}}", "type": "Service"}}'
