@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { environment } from './config/setting';
 import { workload } from './config/workload';
 
-const options = {
+export const options = {
     stages: workload.stress
 };
 

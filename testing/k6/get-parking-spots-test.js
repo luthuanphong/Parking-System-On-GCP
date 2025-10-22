@@ -3,10 +3,9 @@ import { environment } from './config/setting';
 import { workload } from './config/workload';
 import { generateRandomFromRange } from './utils/RandomUtils.js'
 
-const options = {
-    stages: workload.normal
+export const options = {
+    stages: workload.stress
 };
-
 export default function() {
     const url = `${environment.sandbox.URL}/parking/spots`
     const random_id = generateRandomFromRange(1, 1500);

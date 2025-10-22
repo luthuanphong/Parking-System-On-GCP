@@ -3,7 +3,7 @@ import { environment } from './config/setting';
 import { workload } from './config/workload';
 import { generateRandomFromRange } from './utils/RandomUtils.js'
 
-const options = {
+export const options = {
     stages: workload.stress
 };
 

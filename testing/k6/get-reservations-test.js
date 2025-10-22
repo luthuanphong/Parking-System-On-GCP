@@ -4,7 +4,7 @@ import { workload } from './config/workload.js';
 import { tokens } from './mock/mock.js';
 import { generateRandomFromRange } from './utils/RandomUtils.js'
 
-const options = {
+export const options = {
     stages: workload.stress
 };
 
