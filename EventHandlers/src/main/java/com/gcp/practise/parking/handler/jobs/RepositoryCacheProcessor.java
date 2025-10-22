@@ -49,7 +49,7 @@ public class RepositoryCacheProcessor implements DisposableBean {
         Cache vehicleRepoCahce = cacheManager.getCache(CacheConfiguration.VEHICLE_REPOSITORY_BY_USER_ID_CACHE);
         Cache vehicleRepoByIDCahce = cacheManager.getCache(CacheConfiguration.VEHICLE_REPOSITORY_BY_ID_CACHE);
         Cache allVehicles = cacheManager.getCache(CacheConfiguration.ALL_VEHICLE);
-        executor.submit(() -> {
+        executor.execute(() -> {
             userDetail.clear();
             userRepoCache.clear();
             vehicleRepoCahce.clear();
