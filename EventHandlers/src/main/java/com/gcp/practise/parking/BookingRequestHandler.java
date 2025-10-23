@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -26,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class BookingRequestHandler {
 
+    private final Semaphore semaphore = new Semaphore(1);
+
     private final CacheManager cacheManager;
 
     @ServiceActivator(inputChannel = "pubSubInputChannel")
@@ -33,41 +36,46 @@ public class BookingRequestHandler {
         BookingRequestPubsubMessage payload,
          @Header(GcpPubSubHeaders.ORIGINAL_MESSAGE) BasicAcknowledgeablePubsubMessage message
     ) {
-        log.info("Message arrived: {}", payload);
-        LocalDate targetDate = DateUtils.getTargetDate();
-        ReservationEntity reservation = ReservationEntity.builder()
-                        .spotId(payload.getSpotId())
-                        .userId(payload.getUserId())
-                        .vehicleId(payload.getVehicleId())
-                        .reservedForDate(targetDate)
-                        .createdAt(OffsetDateTime.now())
-                        .build();
+        try {
+            log.info("Message arrived: {}", payload);
+            LocalDate targetDate = DateUtils.getTargetDate();
+            ReservationEntity reservation = ReservationEntity.builder()
+                            .spotId(payload.getSpotId())
+                            .userId(payload.getUserId())
+                            .vehicleId(payload.getVehicleId())
+                            .reservedForDate(targetDate)
+                            .createdAt(OffsetDateTime.now())
+                            .build();
+            semaphore.acquire();
+            Cache reservated = cacheManager.getCache(CacheConfiguration.RESERVATIONS_CACHE_NAME);
+            Cache reservedUserCache = cacheManager.getCache(CacheConfiguration.RESERVED_USER_CACHE_NAME);
+            if (reservedUserCache.putIfAbsent(payload.getUserId(), payload.getUsername()) == null) {
+                if (reservated.putIfAbsent(payload.getSpotId(), reservation) == null) {
+                    semaphore.release();
+                    Cache reservationsOfTheDay = cacheManager.getCache(CacheConfiguration.CACHE_NAME);
+                    List<ReservationEntity> reservations = reservationsOfTheDay.get(targetDate.toString(), List.class);
+                    if (reservations == null) {
+                        reservations = new ArrayList<>();
+                    }
 
-        Cache reservated = cacheManager.getCache(CacheConfiguration.RESERVATIONS_CACHE_NAME);
-        Cache reservedUserCache = cacheManager.getCache(CacheConfiguration.RESERVED_USER_CACHE_NAME);
-        if (reservedUserCache.putIfAbsent(payload.getUserId(), payload.getUsername()) == null) {
-            if (reservated.putIfAbsent(payload.getSpotId(), reservation) == null) {
-                Cache reservationsOfTheDay = cacheManager.getCache(CacheConfiguration.CACHE_NAME);
-                List<ReservationEntity> reservations = reservationsOfTheDay.get(targetDate.toString(), List.class);
-                if (reservations == null) {
-                    reservations = new ArrayList<>();
+                    reservations.add(reservation);
+                    reservationsOfTheDay.put(targetDate.toString(), reservations);
+                } else {
+                    log.info("spot is marked as reservated: {}", payload.getSpotId());
+                    // Spot already reserved, evict user reservation
+                    reservedUserCache.evict(payload.getUserId());
                 }
-
-                reservations.add(reservation);
-                reservationsOfTheDay.put(targetDate.toString(), reservations);
             } else {
-                log.info("spot is marked as reservated: {}", payload.getSpotId());
-                // Spot already reserved, evict user reservation
-                reservedUserCache.evict(payload.getUserId());
+                log.info("User is marked as reservated: {}", payload.getUserId());
             }
-        } else {
-            log.info("User is marked as reservated: {}", payload.getUserId());
+
+            cacheManager.getCache(CacheConfiguration.USER_RESERVATION_REQUEST_CACHE_NAME)
+                .evict(payload.getUsername());
+
+            message.ack();
+        } catch (Exception e) {
+            log.error("Failed to accquire semaphore", e);
         }
-
-        cacheManager.getCache(CacheConfiguration.USER_RESERVATION_REQUEST_CACHE_NAME)
-            .evict(payload.getUsername());
-
-        message.ack();
     } 
 
 }
