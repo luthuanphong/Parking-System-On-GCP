@@ -69,7 +69,6 @@ public class RepositoryCacheProcessor implements DisposableBean {
                 try (Stream<VehicleEntity> vStream = vehicleRepository.getAllVehicle()) {
                     List<VehicleEntity> entities = new ArrayList<>();
                     vStream.forEach(v -> {
-                        log.info("Input Vehicle into cache: {}", v);
                         vehicleRepoCahce.put(v.getUserId(), v);
                         vehicleRepoByIDCahce.put(v.getId(), v);
                         userRepoCache.put(v.getUser().getEmail(), v.getUser());
