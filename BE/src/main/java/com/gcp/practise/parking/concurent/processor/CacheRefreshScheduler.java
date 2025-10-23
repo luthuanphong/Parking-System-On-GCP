@@ -66,10 +66,12 @@ public class CacheRefreshScheduler {
         LocalDate localDate = DateUtils.getTargetDate();
         Cache reservated = cacheManager.getCache(CacheConfiguration.RESERVATIONS_CACHE_NAME);
         Cache reservedUserCache = cacheManager.getCache(CacheConfiguration.RESERVED_USER_CACHE_NAME);
+        Cache userRequestCache = cacheManager.getCache(CacheConfiguration.USER_RESERVATION_REQUEST_CACHE_NAME);
         List<ReservationEntity> entities = reservationRepository.findByReservedForDate(localDate);
         if (CollectionUtils.isEmpty(entities)) {
             reservated.clear();
             reservedUserCache.clear(); 
+            userRequestCache.clear();
         }
     }
 }
