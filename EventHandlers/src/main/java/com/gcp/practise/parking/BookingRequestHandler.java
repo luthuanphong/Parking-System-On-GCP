@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.gcp.practise.parking.common.CacheConfiguration;
 import com.gcp.practise.parking.dtos.BookingRequestPubsubMessage;
 import com.gcp.practise.parking.entities.ReservationEntity;
+import com.gcp.practise.parking.repositories.ReservationRepository;
 import com.gcp.practise.parking.utils.DateUtils;
 import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
@@ -30,6 +31,8 @@ public class BookingRequestHandler {
     private final Semaphore semaphore = new Semaphore(1);
 
     private final CacheManager cacheManager;
+
+    private final ReservationRepository reservationRepository;
 
     @ServiceActivator(inputChannel = "pubSubInputChannel")
     public void handleIncomingRequest(
@@ -56,7 +59,7 @@ public class BookingRequestHandler {
                     if (reservations == null) {
                         reservations = new ArrayList<>();
                     }
-
+                    reservation = reservationRepository.save(reservation);
                     reservations.add(reservation);
                     reservationsOfTheDay.put(targetDate.toString(), reservations);
                 } else {
@@ -67,11 +70,11 @@ public class BookingRequestHandler {
             } else {
                 log.info("User is marked as reservated: {}", payload.getUserId());
             }
-            Thread.sleep(50);
-            semaphore.release();
-
+            
             cacheManager.getCache(CacheConfiguration.USER_RESERVATION_REQUEST_CACHE_NAME)
                 .evict(payload.getUsername());
+
+            semaphore.release();
 
             message.ack();
         } catch (Exception e) {

@@ -27,7 +27,7 @@ import com.gcp.practise.parking.security.CustomUserDetails;
 import com.gcp.practise.parking.utils.DateUtils;
 
 @Component
-@ConditionalOnProperty(name = "application.features.version.booking", havingValue = "2")
+@ConditionalOnProperty(name = "application.features.version.booking", havingValue = "3")
 public class BookingRequestInserter implements DisposableBean {
 
     private final ExecutorService reservationInserter = Executors.newSingleThreadExecutor();
