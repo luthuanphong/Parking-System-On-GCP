@@ -13,7 +13,7 @@ import com.gcp.practise.parking.entities.VehicleEntity;
 
 @Getter
 public class CustomUserDetails implements UserDetails {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5L;
 
     private final Integer userId;
     private final String username;

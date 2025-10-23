@@ -14,6 +14,8 @@ import java.time.OffsetDateTime;
 @Builder
 public class VehicleEntity implements java.io.Serializable {
 
+    private static final long serialVersionUID = 4l;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

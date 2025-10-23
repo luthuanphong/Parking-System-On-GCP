@@ -14,6 +14,8 @@ import java.time.OffsetDateTime;
 @Builder
 public class UserEntity implements java.io.Serializable {
 
+    private static final long serialVersionUID = 3l;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

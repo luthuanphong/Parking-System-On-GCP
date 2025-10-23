@@ -20,6 +20,8 @@ import com.gcp.practise.parking.security.CustomUserDetails;
 @Builder
 public class ReservationEntity implements java.io.Serializable {
 
+    private static final long serialVersionUID = 2l;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

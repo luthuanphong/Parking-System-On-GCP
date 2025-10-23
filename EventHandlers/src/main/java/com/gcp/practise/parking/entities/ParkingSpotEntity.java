@@ -12,6 +12,8 @@ import lombok.*;
 @Builder
 public class ParkingSpotEntity implements java.io.Serializable {
 
+    private static final long serialVersionUID = 1l;
+
     @Id
     private Integer id; // IDs provided externally (1..80)
 
