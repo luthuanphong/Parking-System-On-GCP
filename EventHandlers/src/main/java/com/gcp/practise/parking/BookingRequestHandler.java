@@ -56,9 +56,12 @@ public class BookingRequestHandler {
                 reservations.add(reservation);
                 reservationsOfTheDay.put(targetDate.toString(), reservations);
             } else {
+                log.info("spot is marked as reservated: {}", payload.getSpotId());
                 // Spot already reserved, evict user reservation
                 reservedUserCache.evict(payload.getUserId());
             }
+        } else {
+            log.info("User is marked as reservated: {}", payload.getUserId());
         }
 
         cacheManager.getCache(CacheConfiguration.USER_RESERVATION_REQUEST_CACHE_NAME)
