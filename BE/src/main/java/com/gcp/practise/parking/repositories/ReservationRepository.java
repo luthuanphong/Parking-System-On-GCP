@@ -16,4 +16,5 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     value = CacheConfiguration.CACHE_NAME, 
     key = "#reservedForDate.toString()")
     List<ReservationEntity> findByReservedForDate(LocalDate reservedForDate);
+    
 }

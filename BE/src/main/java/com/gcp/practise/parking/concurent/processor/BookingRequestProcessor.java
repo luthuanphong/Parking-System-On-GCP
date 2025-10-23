@@ -71,7 +71,6 @@ public class BookingRequestProcessor implements DisposableBean {
 
                     Cache reservated = cacheManager.getCache(CacheConfiguration.RESERVATIONS_CACHE_NAME);
                     Cache reservedUserCache = cacheManager.getCache(CacheConfiguration.RESERVED_USER_CACHE_NAME);
-                    
                     if (reservedUserCache.putIfAbsent(userDetails.getUserId(), userDetails.getUsername()) == null) {
                         if (reservated.putIfAbsent(request.getSpotId(), reservation) == null) {
                             Cache reservationsOfTheDay = cacheManager.getCache(CacheConfiguration.CACHE_NAME);
