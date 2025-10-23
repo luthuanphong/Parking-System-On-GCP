@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler.jobs;
+package com.gcp.practise.parking.jobs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +17,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import com.gcp.practise.parking.handler.common.CacheConfiguration;
-import com.gcp.practise.parking.handler.entities.VehicleEntity;
-import com.gcp.practise.parking.handler.repositories.VehicleRepository;
-import com.gcp.practise.parking.handler.security.CustomUserDetails;
+import com.gcp.practise.parking.common.CacheConfiguration;
+import com.gcp.practise.parking.entities.VehicleEntity;
+import com.gcp.practise.parking.repositories.VehicleRepository;
+import com.gcp.practise.parking.security.CustomUserDetails;
 
 import lombok.extern.slf4j.Slf4j;
 

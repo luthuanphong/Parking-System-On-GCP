@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler.configuration;
+package com.gcp.practise.parking.configuration;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -7,7 +7,7 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.MessageChannel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gcp.practise.parking.handler.dtos.BookingRequestPubsubMessage;
+import com.gcp.practise.parking.dtos.BookingRequestPubsubMessage;
 import com.google.cloud.spring.pubsub.core.PubSubTemplate;
 import com.google.cloud.spring.pubsub.integration.AckMode;
 import com.google.cloud.spring.pubsub.integration.inbound.PubSubInboundChannelAdapter;

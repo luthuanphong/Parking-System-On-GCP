@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler;
+package com.gcp.practise.parking;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,15 +16,15 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import com.gcp.practise.parking.handler.common.CacheConfiguration;
-import com.gcp.practise.parking.handler.entities.ReservationEntity;
-import com.gcp.practise.parking.handler.entities.UserEntity;
-import com.gcp.practise.parking.handler.entities.VehicleEntity;
-import com.gcp.practise.parking.handler.repositories.ReservationRepository;
-import com.gcp.practise.parking.handler.repositories.UserRepository;
-import com.gcp.practise.parking.handler.repositories.VehicleRepository;
-import com.gcp.practise.parking.handler.security.CustomUserDetails;
-import com.gcp.practise.parking.handler.utils.DateUtils;
+import com.gcp.practise.parking.common.CacheConfiguration;
+import com.gcp.practise.parking.entities.ReservationEntity;
+import com.gcp.practise.parking.entities.UserEntity;
+import com.gcp.practise.parking.entities.VehicleEntity;
+import com.gcp.practise.parking.repositories.ReservationRepository;
+import com.gcp.practise.parking.repositories.UserRepository;
+import com.gcp.practise.parking.repositories.VehicleRepository;
+import com.gcp.practise.parking.security.CustomUserDetails;
+import com.gcp.practise.parking.utils.DateUtils;
 
 @Component
 @ConditionalOnProperty(name = "application.features.version.booking", havingValue = "2")

@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler.entities;
+package com.gcp.practise.parking.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

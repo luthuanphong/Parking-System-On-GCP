@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler.common;
+package com.gcp.practise.parking.common;
 
 import java.util.Set;
 

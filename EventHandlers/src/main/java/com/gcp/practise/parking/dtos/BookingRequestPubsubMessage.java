@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler.dtos;
+package com.gcp.practise.parking.dtos;
 
 import lombok.Builder;
 import lombok.Data;

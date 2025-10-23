@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler.jobs;
+package com.gcp.practise.parking.jobs;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.Cache;
@@ -6,7 +6,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.gcp.practise.parking.handler.common.CacheConfiguration;
+import com.gcp.practise.parking.common.CacheConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 

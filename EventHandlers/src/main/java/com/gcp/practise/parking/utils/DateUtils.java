@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler.utils;
+package com.gcp.practise.parking.utils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

@@ -1,7 +1,7 @@
-package com.gcp.practise.parking.handler.repositories;
+package com.gcp.practise.parking.repositories;
 
-import com.gcp.practise.parking.handler.common.CacheConfiguration;
-import com.gcp.practise.parking.handler.entities.ReservationEntity;
+import com.gcp.practise.parking.common.CacheConfiguration;
+import com.gcp.practise.parking.entities.ReservationEntity;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;

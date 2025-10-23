@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler;
+package com.gcp.practise.parking;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

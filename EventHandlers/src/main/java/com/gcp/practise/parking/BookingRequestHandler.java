@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler;
+package com.gcp.practise.parking;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -11,13 +11,10 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import com.gcp.practise.parking.handler.common.CacheConfiguration;
-import com.gcp.practise.parking.handler.dtos.BookingRequestPubsubMessage;
-import com.gcp.practise.parking.handler.entities.ReservationEntity;
-import com.gcp.practise.parking.handler.repositories.ReservationRepository;
-import com.gcp.practise.parking.handler.repositories.UserRepository;
-import com.gcp.practise.parking.handler.repositories.VehicleRepository;
-import com.gcp.practise.parking.handler.utils.DateUtils;
+import com.gcp.practise.parking.common.CacheConfiguration;
+import com.gcp.practise.parking.dtos.BookingRequestPubsubMessage;
+import com.gcp.practise.parking.entities.ReservationEntity;
+import com.gcp.practise.parking.utils.DateUtils;
 import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
 

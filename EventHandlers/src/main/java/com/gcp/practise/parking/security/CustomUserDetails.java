@@ -1,4 +1,4 @@
-package com.gcp.practise.parking.handler.security;
+package com.gcp.practise.parking.security;
 
 import lombok.Getter;
 import java.util.Collection;
@@ -8,8 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.gcp.practise.parking.handler.entities.UserEntity;
-import com.gcp.practise.parking.handler.entities.VehicleEntity;
+import com.gcp.practise.parking.entities.UserEntity;
+import com.gcp.practise.parking.entities.VehicleEntity;
 
 @Getter
 public class CustomUserDetails implements UserDetails {
