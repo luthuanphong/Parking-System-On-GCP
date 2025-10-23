@@ -79,6 +79,7 @@ public class BookingRequestProcessor implements DisposableBean {
                                 reservations = new ArrayList<>();
                             }
 
+                            reservation = reservationRepository.save(reservation);
                             reservations.add(reservation);
                             reservationsOfTheDay.put(targetDate.toString(), reservations);
                         } else {
@@ -100,37 +101,37 @@ public class BookingRequestProcessor implements DisposableBean {
         });
     }
 
-    @EventListener(ApplicationStartedEvent.class)
-    public void processReservations() {
-        reservationInserter.submit(() -> {
-            while (running) {
-                try {
-                    Thread.sleep(2000);
-                    LocalDate targetDate = DateUtils.getTargetDate();
-                    Cache reservationsOfTheDay = cacheManager.getCache(CacheConfiguration.CACHE_NAME);
-                    List<ReservationEntity> reservations = reservationsOfTheDay.get(targetDate.toString(), List.class);
-                    if (!CollectionUtils.isEmpty(reservations)) {
-                        List<ReservationEntity> insertedReservations = reservations
-                        .stream().filter(reservation -> reservation.getId() != null)
-                        .toList();
+    // @EventListener(ApplicationStartedEvent.class)
+    // public void processReservations() {
+    //     reservationInserter.submit(() -> {
+    //         while (running) {
+    //             try {
+    //                 Thread.sleep(2000);
+    //                 LocalDate targetDate = DateUtils.getTargetDate();
+    //                 Cache reservationsOfTheDay = cacheManager.getCache(CacheConfiguration.CACHE_NAME);
+    //                 List<ReservationEntity> reservations = reservationsOfTheDay.get(targetDate.toString(), List.class);
+    //                 if (!CollectionUtils.isEmpty(reservations)) {
+    //                     List<ReservationEntity> insertedReservations = reservations
+    //                     .stream().filter(reservation -> reservation.getId() != null)
+    //                     .toList();
 
-                        List<ReservationEntity> toBeInserted = reservations
-                        .stream().filter(reservation -> reservation.getId() == null)
-                        .toList();
+    //                     List<ReservationEntity> toBeInserted = reservations
+    //                     .stream().filter(reservation -> reservation.getId() == null)
+    //                     .toList();
 
-                        toBeInserted = reservationRepository.saveAll(toBeInserted);
-                        updateUsers(toBeInserted);
+    //                     toBeInserted = reservationRepository.saveAll(toBeInserted);
+    //                     updateUsers(toBeInserted);
 
-                        List<ReservationEntity> finalToBeInserted = new ArrayList<>(toBeInserted);
-                        finalToBeInserted.addAll(insertedReservations);
-                        reservationsOfTheDay.put(targetDate.toString(), finalToBeInserted);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+    //                     List<ReservationEntity> finalToBeInserted = new ArrayList<>(toBeInserted);
+    //                     finalToBeInserted.addAll(insertedReservations);
+    //                     reservationsOfTheDay.put(targetDate.toString(), finalToBeInserted);
+    //                 }
+    //             } catch (InterruptedException e) {
+    //                 e.printStackTrace();
+    //             }
+    //         }
+    //     });
+    // }
     
     @Override
     public void destroy() throws Exception {
