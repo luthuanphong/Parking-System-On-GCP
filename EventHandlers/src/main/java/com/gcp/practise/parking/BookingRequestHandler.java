@@ -49,24 +49,38 @@ public class BookingRequestHandler {
             semaphore.acquire();
             Cache reservated = cacheManager.getCache(CacheConfiguration.RESERVATIONS_CACHE_NAME);
             Cache reservedUserCache = cacheManager.getCache(CacheConfiguration.RESERVED_USER_CACHE_NAME);
-            if (reservedUserCache.putIfAbsent(payload.getUserId(), payload.getUsername()) == null) {
-                if (reservated.putIfAbsent(payload.getSpotId(), reservation) == null) {
-                    Cache reservationsOfTheDay = cacheManager.getCache(CacheConfiguration.CACHE_NAME);
-                    List<ReservationEntity> reservations = reservationsOfTheDay.get(targetDate.toString(), List.class);
-                    if (reservations == null) {
-                        reservations = new ArrayList<>();
-                    }
-
-                    reservations.add(reservation);
-                    reservationsOfTheDay.put(targetDate.toString(), reservations);
-                } else {
-                    log.info("spot is marked as reservated: {}", payload.getSpotId());
-                    // Spot already reserved, evict user reservation
-                    reservedUserCache.evict(payload.getUserId());
+            if (reservedUserCache.get(payload.getUserId()) == null 
+            && reservated.get(payload.getSpotId()) == null) {
+                log.info("User {} booked spot {}", payload.getUserId(), payload.getSpotId());
+                Cache reservationsOfTheDay = cacheManager.getCache(CacheConfiguration.CACHE_NAME);
+                List<ReservationEntity> reservations = reservationsOfTheDay.get(targetDate.toString(), List.class);
+                if (reservations == null) {
+                    reservations = new ArrayList<>();
                 }
-            } else {
-                log.info("User is marked as reservated: {}", payload.getUserId());
+
+                reservations.add(reservation);
+                reservationsOfTheDay.put(targetDate.toString(), reservations);
+                reservedUserCache.putIfAbsent(payload.getUserId(), payload.getUsername());
+                reservated.putIfAbsent(payload.getSpotId(), reservation);
             }
+            // if (reservedUserCache.putIfAbsent(payload.getUserId(), payload.getUsername()) == null) {
+            //     if (reservated.putIfAbsent(payload.getSpotId(), reservation) == null) {
+            //         Cache reservationsOfTheDay = cacheManager.getCache(CacheConfiguration.CACHE_NAME);
+            //         List<ReservationEntity> reservations = reservationsOfTheDay.get(targetDate.toString(), List.class);
+            //         if (reservations == null) {
+            //             reservations = new ArrayList<>();
+            //         }
+
+            //         reservations.add(reservation);
+            //         reservationsOfTheDay.put(targetDate.toString(), reservations);
+            //     } else {
+            //         log.info("spot is marked as reservated: {}", payload.getSpotId());
+            //         // Spot already reserved, evict user reservation
+            //         reservedUserCache.evict(payload.getUserId());
+            //     }
+            // } else {
+            //     log.info("User is marked as reservated: {}", payload.getUserId());
+            // }
             semaphore.release();
 
             cacheManager.getCache(CacheConfiguration.USER_RESERVATION_REQUEST_CACHE_NAME)
