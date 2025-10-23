@@ -51,7 +51,6 @@ public class BookingRequestHandler {
             Cache reservedUserCache = cacheManager.getCache(CacheConfiguration.RESERVED_USER_CACHE_NAME);
             if (reservedUserCache.putIfAbsent(payload.getUserId(), payload.getUsername()) == null) {
                 if (reservated.putIfAbsent(payload.getSpotId(), reservation) == null) {
-                    semaphore.release();
                     Cache reservationsOfTheDay = cacheManager.getCache(CacheConfiguration.CACHE_NAME);
                     List<ReservationEntity> reservations = reservationsOfTheDay.get(targetDate.toString(), List.class);
                     if (reservations == null) {
@@ -68,6 +67,7 @@ public class BookingRequestHandler {
             } else {
                 log.info("User is marked as reservated: {}", payload.getUserId());
             }
+            semaphore.release();
 
             cacheManager.getCache(CacheConfiguration.USER_RESERVATION_REQUEST_CACHE_NAME)
                 .evict(payload.getUsername());
