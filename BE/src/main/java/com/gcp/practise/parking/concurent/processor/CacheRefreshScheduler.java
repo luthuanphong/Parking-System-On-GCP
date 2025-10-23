@@ -60,7 +60,8 @@ public class CacheRefreshScheduler {
     //     log.info("Cache refresh scheduler completed");
     // }
 
-    @Scheduled(fixedDelay = 15, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(cron = "0 0,15,30,45 * * * ?")
+    // @Scheduled(fixedDelay = 15, timeUnit = TimeUnit.MINUTES)
     public void refreshCache() {
         LocalDate localDate = DateUtils.getTargetDate();
         Cache reservated = cacheManager.getCache(CacheConfiguration.RESERVATIONS_CACHE_NAME);
