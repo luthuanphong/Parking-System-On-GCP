@@ -17,6 +17,12 @@ export const workload = {
             target: 1500
         }
     ],
+    superStress: [
+        {
+            duration: '6m',
+            target: 2000
+        }
+    ],
     thresholds: {
         http_req_failed: ['rate<0.1'], 
         http_req_duration: ['p(95)<60000']
