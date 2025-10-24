@@ -2,50 +2,49 @@
 config:
   theme: forest
 ---
-sequenceDiagram
-    actor User
-    participant UI
-    participant Auth as Authentication Service
-    participant Booking as Booking Service
-    participant Cache as MemoryStore (Redis)
-    participant DB as CloudSQL (PostgreSQL)
-    participant PubSub as Pub/Sub
-    participant Handler as Event Handler
-    User->>UI: Enter login credentials
-    UI->>Auth: Validate credentials
-    Auth-->>UI: Login success
-    UI-->>User: Redirect to Booking Page
-    User->>UI: Request parking booking
-    UI->>Booking: Send booking request
-    Booking->>Cache: Check existing reservation or request
-    alt Already reserved/request exists
-        Booking-->>UI: Error - Already has reservation
-        UI-->>User: Show error message
-    else No existing request
-        Booking->>Cache: Check user balance
-        alt Insufficient balance
-            Booking-->>UI: Error - Insufficient balance
-            UI-->>User: Show error message
-        else Sufficient balance
-            Booking->>Cache: Check parking spot availability
-            alt Spot unavailable
-                Booking-->>UI: Error - Spot unavailable
-                UI-->>User: Show error message
-            else Spot available
-                Booking->>Cache: Put temporary reservation request
-                Booking->>PubSub: Publish "ReservationRequested" event
-                PubSub-->>Handler: Deliver booking event
-                Handler->>Cache: Check if spot already reserved
-                alt Spot already reserved
-                    Handler-->>PubSub: Ignore event
-                else Spot not reserved
-                    Handler->>DB: Insert reservation record<br/>Update parking spot status
-                    DB-->>Handler: Reservation success
-                end
-                Handler->>Cache: Clear user booking request
-                Handler-->>PubSub: Acknowledge event completion
-                Booking-->>UI: Booking request submitted
-                UI-->>User: Show pending confirmation
-            end
-        end
-    end
+flowchart LR
+    %% Start
+    A([Start]) --> B[User enters login credentials]
+    B --> C[Validate credentials via Authentication Service]
+    C --> D{Login successful?}
+    D -->|No| Z1[Show error message to User] --> A
+    D -->|Yes| E[Redirect to Booking Page]
+
+    %% Booking Request
+    E --> F[User requests parking booking]
+    F --> G[Send booking request to Booking Service]
+    G --> H[Check existing reservation or request in Cache]
+
+    %% Existing Reservation Check
+    H --> I{Existing reservation?}
+    I -->|Yes| J[Show error: Already has reservation] --> A
+    I -->|No| K[Check user balance in Cache]
+
+    %% Balance Check
+    K --> L{Sufficient balance?}
+    L -->|No| M[Show error: Insufficient balance] --> A
+    L -->|Yes| N[Check parking spot availability in Cache]
+
+    %% Availability Check
+    N --> O{Spot available?}
+    O -->|No| P[Show error: Spot unavailable] --> A
+    O -->|Yes| Q[Put temporary reservation request in Cache]
+    Q --> R[Publish ReservationRequested event to Pub/Sub]
+
+    %% Event Handling
+    R --> S[Pub/Sub delivers event to Event Handler]
+    S --> T[Handler checks if spot already reserved in Cache]
+    T --> U{Spot already reserved?}
+    U -->|Yes| V[Ignore event and stop processing]
+    U -->|No| W[Insert reservation record<br/>Update parking spot status in DB]
+    W --> X[Reservation success from DB]
+
+    %% Post-processing
+    V --> Y[Handler clears user booking request in Cache]
+    X --> Y
+    Y --> Z[Handler acknowledges event completion to Pub/Sub]
+
+    %% User Notification
+    Z --> AA[Booking Service notifies UI: Booking request submitted]
+    AA --> AB[Show pending confirmation to User]
+    AB --> AC([End])

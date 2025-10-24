@@ -2,36 +2,32 @@
 config:
   theme: forest
 ---
-sequenceDiagram
-    actor User
-    participant UI as Web Interface
-    participant Auth as Authentication Service
-    participant Booking as Booking Service
-    participant Cache as MemoryStore (Redis)
-    participant DB as CloudSQL (PostgreSQL)
-    User->>UI: Enter login credentials
-    UI->>Auth: Validate credentials
-    Auth-->>UI: Login success
-    UI-->>User: Redirect to Booking Page
-    User->>UI: Request parking booking
-    UI->>Booking: Send booking request
-    Booking->>Cache: Get user info
-    Cache-->>Booking: Return user info
-    Booking->>Booking: Check user balance
-    alt Insufficient balance
-        Booking-->>UI: Error - Insufficient balance
-        UI-->>User: Show error message
-    else Sufficient balance
-        Booking->>Cache: Get parking spot data
-        Cache-->>Booking: Return spot data
-        Booking->>Booking: Check parking availability
-        alt Spot unavailable
-            Booking-->>UI: Error - Spot unavailable
-            UI-->>User: Show error message
-        else Spot available
-            Booking->>DB: Insert reservation record<br/>Update parking spot status<br/>Deduct user balance
-            DB-->>Booking: Confirmation success
-            Booking-->>UI: Reservation confirmed
-            UI-->>User: Show booking confirmation
-        end
-    end
+flowchart LR
+    %% Actors and Start
+    A([Start]) --> B[User enters login credentials]
+    B --> C[Validate credentials via Authentication Service]
+    C --> D{Login successful?}
+    D -->|No| Z1[Show error message to User] --> A
+    D -->|Yes| E[Redirect to Booking Page]
+
+    %% Booking request
+    E --> F[User requests parking booking]
+    F --> G[Send booking request to Booking Service]
+    G --> H[Retrieve user info from Cache Redis]
+    H --> I[Check user balance]
+
+    %% Balance check
+    I --> J{Sufficient balance?}
+    J -->|No| K[Show error: Insufficient balance] --> A
+    J -->|Yes| L[Get parking spot data from Cache]
+
+    %% Availability check
+    L --> M[Check parking availability]
+    M --> N{Spot available?}
+    N -->|No| O[Show error: Spot unavailable] --> A
+    N -->|Yes| P[Insert reservation record<br/>Update parking spot status<br/>Deduct user balance in DB]
+
+    %% Success flow
+    P --> Q[Confirmation success from DB]
+    Q --> R[Show booking confirmation to User]
+    R --> S([End])
