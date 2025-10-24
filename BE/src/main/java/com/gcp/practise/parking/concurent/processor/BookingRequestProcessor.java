@@ -22,8 +22,10 @@ import com.gcp.practise.parking.concurent.BookingProcessingQueue;
 import com.gcp.practise.parking.dtos.BookingProcessing;
 import com.gcp.practise.parking.entities.ReservationEntity;
 import com.gcp.practise.parking.entities.UserEntity;
+import com.gcp.practise.parking.entities.VehicleEntity;
 import com.gcp.practise.parking.repositories.ReservationRepository;
 import com.gcp.practise.parking.repositories.UserRepository;
+import com.gcp.practise.parking.repositories.VehicleRepository;
 import com.gcp.practise.parking.security.CustomUserDetails;
 import com.gcp.practise.parking.utils.DateUtils;
 
@@ -47,6 +49,9 @@ public class BookingRequestProcessor implements DisposableBean {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
     @EventListener(ApplicationStartedEvent.class)
     public void star() {
@@ -82,6 +87,7 @@ public class BookingRequestProcessor implements DisposableBean {
                             reservation = reservationRepository.save(reservation);
                             reservations.add(reservation);
                             reservationsOfTheDay.put(targetDate.toString(), reservations);
+                            reduceBalance(reservation.getVehicleId());
                         } else {
                             // Spot already reserved, evict user reservation
                             reservedUserCache.evict(userDetails.getUserId());
@@ -99,6 +105,18 @@ public class BookingRequestProcessor implements DisposableBean {
                 }
             }
         });
+    }
+
+    private void reduceBalance(Integer vehicleId) {
+        VehicleEntity vehicle = vehicleRepository.findByIdOrThrow(vehicleId);
+        UserEntity user = vehicle.getUser();
+        user.setBalanceCents(user.getBalanceCents() - 1000);
+
+        user = userRepository.save(user);
+        Cache userDetail = cacheManager.getCache(CacheConfiguration.USER_CACHE_NAME);
+        Cache userRepoCache = cacheManager.getCache(CacheConfiguration.USER_REPOSITORY_CACHE);
+        userRepoCache.put(user.getEmail(), user);
+        userDetail.put(user.getEmail(), new CustomUserDetails(user, vehicle));
     }
 
     // @EventListener(ApplicationStartedEvent.class)
